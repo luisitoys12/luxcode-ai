@@ -9,7 +9,6 @@ on:
         default: 'SI'
 
 jobs:
-  # ── v0.1.0-beta ────────────────────────────────────────────────────────────
   release-v010-beta:
     name: 📦 Release v0.1.0-beta
     runs-on: ubuntu-latest
@@ -18,31 +17,24 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-
+          # NO cache: npm — package-lock no tiene árbol completo aún
       - name: Install dependencies
         run: npm install
-
       - name: Compile TypeScript
-        run: npx tsc -p ./     # [FIX GA-04] npx tsc, no npm install -g typescript
-
+        run: npx tsc -p ./
       - name: Set version 0.1.0
         run: npm version 0.1.0 --no-git-tag-version --allow-same-version
-
       - name: Package VSIX
-        run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher  # [FIX GA-04]
-
+        run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher
       - name: Create tag v0.1.0-beta
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag v0.1.0-beta 2>/dev/null || echo "Tag ya existe"
           git push origin v0.1.0-beta 2>/dev/null || echo "Tag ya pusheado"
-
       - name: 🚀 GitHub Release v0.1.0-beta
         uses: softprops/action-gh-release@v2
         with:
@@ -61,7 +53,6 @@ jobs:
 
             **API Key gratis:** https://aistudio.google.com/app/apikey
 
-  # ── v0.2.0 ────────────────────────────────────────────────────────────────
   release-v020:
     name: 📦 Release v0.2.0
     runs-on: ubuntu-latest
@@ -70,30 +61,22 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-
       - run: npm install
-
       - name: Compile TypeScript
         run: npx tsc -p ./
-
       - name: Set version 0.2.0
         run: npm version 0.2.0 --no-git-tag-version --allow-same-version
-
       - name: Package VSIX
         run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher
-
       - name: Create tag v0.2.0
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag v0.2.0 2>/dev/null || echo "Tag ya existe"
           git push origin v0.2.0 2>/dev/null || echo "Tag ya pusheado"
-
       - name: 🚀 GitHub Release v0.2.0
         uses: softprops/action-gh-release@v2
         with:
@@ -107,12 +90,11 @@ jobs:
             - 📱 Apps Móviles (React Native, Flutter, Ionic)
             - 🖥 Apps Escritorio (Tauri, Electron, Neutralino.js)
             - ⚡ Groq Llama 3.3 70B (gratis, ultra rápido)
-            - 🦙 Ollama local (sin internet, 7 modelos)
+            - 🦙 Ollama local (sin internet)
             - 🌐 OpenRouter (100+ modelos)
 
             **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
 
-  # ── v0.3.0 ────────────────────────────────────────────────────────────────
   release-v030:
     name: 📦 Release v0.3.0
     runs-on: ubuntu-latest
@@ -121,30 +103,22 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-
       - run: npm install
-
       - name: Compile TypeScript
         run: npx tsc -p ./
-
       - name: Set version 0.3.0
         run: npm version 0.3.0 --no-git-tag-version --allow-same-version
-
       - name: Package VSIX
         run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher
-
       - name: Create tag v0.3.0
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag v0.3.0 2>/dev/null || echo "Tag ya existe"
           git push origin v0.3.0 2>/dev/null || echo "Tag ya pusheado"
-
       - name: 🚀 GitHub Release v0.3.0
         uses: softprops/action-gh-release@v2
         with:
@@ -154,18 +128,16 @@ jobs:
           fail_on_unmatched_files: false
           files: "*.vsix"
           body: |
-            ## ⚡ LuxCode AI v0.3.0 — La versión más poderosa
+            ## ⚡ LuxCode AI v0.3.0
             - 🤖 **Modo Agente** — tareas complejas multi-paso
             - 🔌 **MCP Server** — compatible con Copilot, Claude, Cline
             - 🔌 **Generador de APIs REST** Node.js/Express
-            - 📄 AGENTS.md + llms.txt para contexto IA
+            - 📄 AGENTS.md + llms.txt
             - 🦙 Qwen 2.5 Coder en Ollama
-
-            **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
 
             **Sitio web:** https://luisitoys12.github.io/luxcode-ai
 
-      - name: "✅ Todos los releases publicados"
+      - name: "✅ Resumen de releases"
         run: |
           echo "## ✅ Releases publicados" >> $GITHUB_STEP_SUMMARY
           echo "| Versión | Estado |" >> $GITHUB_STEP_SUMMARY
@@ -173,4 +145,3 @@ jobs:
           echo "| v0.1.0-beta | ✅ |" >> $GITHUB_STEP_SUMMARY
           echo "| v0.2.0      | ✅ |" >> $GITHUB_STEP_SUMMARY
           echo "| v0.3.0      | ✅ |" >> $GITHUB_STEP_SUMMARY
-          echo "| [Ver releases](https://github.com/luisitoys12/luxcode-ai/releases) | 🔗 |" >> $GITHUB_STEP_SUMMARY
