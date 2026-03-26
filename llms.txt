@@ -1,0 +1,37 @@
+# LuxCode AI
+
+> VS Code extension that generates web pages, mobile apps, and desktop applications using AI. Open source, free, supports 6+ AI providers.
+
+## What is LuxCode AI?
+LuxCode AI is an open-source VS Code extension that lets developers generate complete projects (web, mobile, desktop) from natural language descriptions. It supports Gemini, OpenAI, Groq, Ollama, LM Studio, and OpenRouter.
+
+## Key Features
+- Generate full web pages (HTML/CSS/JS) from text descriptions
+- Generate mobile apps (React Native, Flutter, Ionic)
+- Generate desktop apps (Tauri, Electron, Neutralino.js)
+- Generate REST APIs (Node.js/Express)
+- Multi-step AI agent mode for complex tasks
+- MCP server support for tool integration
+- Edit, explain, and fix code with AI
+- 6+ AI providers, 4 free options
+
+## Files
+- [README](https://github.com/luisitoys12/luxcode-ai/blob/main/README.md): Full documentation
+- [CHANGELOG](https://github.com/luisitoys12/luxcode-ai/blob/main/CHANGELOG.md): Version history
+- [AGENTS.md](https://github.com/luisitoys12/luxcode-ai/blob/main/AGENTS.md): Agent/AI instructions for this codebase
+- [src/extension.ts](https://github.com/luisitoys12/luxcode-ai/blob/main/src/extension.ts): Entry point
+- [src/services/AIService.ts](https://github.com/luisitoys12/luxcode-ai/blob/main/src/services/AIService.ts): AI provider logic
+
+## AI Providers Supported
+- Google Gemini 2.0 Flash (free)
+- Groq / Llama 3.3 70B (free)
+- Ollama local models (free, offline)
+- LM Studio (free, offline)
+- OpenRouter (free/paid, 100+ models)
+- OpenAI GPT-4o (paid)
+
+## Repository
+https://github.com/luisitoys12/luxcode-ai
+
+## Website
+https://luisitoys12.github.io/luxcode-ai

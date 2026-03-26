@@ -1,12 +1,12 @@
 {
   "name": "luxcode-ai",
   "displayName": "LuxCode AI",
-  "description": "Genera páginas web, apps móviles y apps de escritorio con IA. Soporta Gemini, OpenAI, Ollama, LM Studio y más.",
-  "version": "0.2.0",
+  "description": "Genera web, mobile, desktop y APIs con IA. Modo Agente, MCP, Gemini, Groq, Ollama y más. Open Source.",
+  "version": "0.3.0",
   "publisher": "luisitoys12",
   "engines": { "vscode": "^1.85.0" },
   "categories": ["AI", "Other"],
-  "keywords": ["ai", "web", "mobile", "desktop", "html", "react", "flutter", "tauri", "gemini", "openai", "ollama", "generator"],
+  "keywords": ["ai", "agent", "mcp", "web", "mobile", "desktop", "api", "gemini", "openai", "ollama", "groq", "codegen", "generator", "kilo", "cline"],
   "activationEvents": [],
   "main": "./out/extension.js",
   "icon": "media/icon.png",
@@ -14,8 +14,11 @@
     "commands": [
       { "command": "luxcode.openPanel", "title": "LuxCode AI: Abrir Panel" },
       { "command": "luxcode.generateWeb", "title": "LuxCode AI: Generar Página Web" },
-      { "command": "luxcode.generateMobile", "title": "LuxCode AI: Generar App Móvil (React Native / Flutter)" },
-      { "command": "luxcode.generateDesktop", "title": "LuxCode AI: Generar App de Escritorio (Tauri / Electron)" },
+      { "command": "luxcode.generateMobile", "title": "LuxCode AI: Generar App Móvil" },
+      { "command": "luxcode.generateDesktop", "title": "LuxCode AI: Generar App Escritorio" },
+      { "command": "luxcode.generateAPI", "title": "LuxCode AI: Generar API REST" },
+      { "command": "luxcode.agentTask", "title": "LuxCode AI: 🤖 Modo Agente" },
+      { "command": "luxcode.mcpConnect", "title": "LuxCode AI: Conectar MCP Server" },
       { "command": "luxcode.editWithAI", "title": "LuxCode AI: Editar con IA" },
       { "command": "luxcode.explainCode", "title": "LuxCode AI: Explicar Código" },
       { "command": "luxcode.fixBug", "title": "LuxCode AI: Corregir Bug" }
@@ -33,25 +36,16 @@
         "luxcode.apiProvider": {
           "type": "string",
           "enum": ["gemini", "openai", "ollama", "lmstudio", "groq", "openrouter"],
-          "enumDescriptions": [
-            "Google Gemini 2.0 Flash (gratis)",
-            "OpenAI GPT-4o",
-            "Ollama - modelos locales (Llama 3, Mistral, CodeLlama...)",
-            "LM Studio - modelos locales con interfaz gráfica",
-            "Groq - inferencia ultrarrápida (gratis con límites)",
-            "OpenRouter - acceso a 100+ modelos"
-          ],
           "default": "gemini",
           "description": "Proveedor de IA"
         },
         "luxcode.geminiApiKey": { "type": "string", "default": "", "description": "API Key de Google Gemini" },
         "luxcode.openaiApiKey": { "type": "string", "default": "", "description": "API Key de OpenAI" },
-        "luxcode.groqApiKey": { "type": "string", "default": "", "description": "API Key de Groq (gratis en groq.com)" },
+        "luxcode.groqApiKey": { "type": "string", "default": "", "description": "API Key de Groq" },
         "luxcode.openrouterApiKey": { "type": "string", "default": "", "description": "API Key de OpenRouter" },
-        "luxcode.ollamaUrl": { "type": "string", "default": "http://localhost:11434", "description": "URL de Ollama local" },
-        "luxcode.ollamaModel": { "type": "string", "default": "llama3", "description": "Modelo de Ollama (llama3, mistral, codellama, deepseek-coder...)" },
-        "luxcode.lmstudioUrl": { "type": "string", "default": "http://localhost:1234", "description": "URL de LM Studio local" },
-        "luxcode.openrouterModel": { "type": "string", "default": "deepseek/deepseek-coder", "description": "Modelo de OpenRouter" }
+        "luxcode.ollamaUrl": { "type": "string", "default": "http://localhost:11434", "description": "URL de Ollama" },
+        "luxcode.ollamaModel": { "type": "string", "default": "llama3", "description": "Modelo de Ollama" },
+        "luxcode.lmstudioUrl": { "type": "string", "default": "http://localhost:1234", "description": "URL de LM Studio" }
       }
     },
     "viewsContainers": {
@@ -69,7 +63,6 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "lint": "eslint src",
     "package": "vsce package",
     "publish": "vsce publish"
   },
@@ -77,7 +70,6 @@
     "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
     "typescript": "^5.3.0",
-    "@vscode/vsce": "^2.22.0",
-    "eslint": "^8.56.0"
+    "@vscode/vsce": "^2.22.0"
   }
 }

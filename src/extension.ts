@@ -2,182 +2,183 @@ import * as vscode from 'vscode';
 import { LuxCodePanel } from './panels/LuxCodePanel';
 import { AIService } from './services/AIService';
 import { FileService } from './services/FileService';
+import { MCPService } from './services/MCPService';
+import { AgentService } from './services/AgentService';
+
+const mcpService = new MCPService();
 
 export function activate(context: vscode.ExtensionContext) {
-  console.log('⚡ LuxCode AI v0.2.0 activado');
+  console.log('⚡ LuxCode AI v0.3.0 activado');
 
   // Sidebar
-  const sidebarProvider = new LuxCodeSidebarProvider(context.extensionUri, context);
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider('luxcode.mainView', sidebarProvider)
+    vscode.window.registerWebviewViewProvider('luxcode.mainView', new LuxCodeSidebarProvider(context.extensionUri, context))
   );
 
-  // Comando: Abrir Panel
-  register(context, 'luxcode.openPanel', () => {
-    LuxCodePanel.createOrShow(context.extensionUri, context);
-  });
-
-  // Comando: Generar Página Web
-  register(context, 'luxcode.generateWeb', async () => {
-    await runGenerator('web', context);
-  });
-
-  // Comando: Generar App Móvil
-  register(context, 'luxcode.generateMobile', async () => {
-    await runGenerator('mobile', context);
-  });
-
-  // Comando: Generar App Escritorio
-  register(context, 'luxcode.generateDesktop', async () => {
-    await runGenerator('desktop', context);
-  });
-
-  // Comando: Editar con IA
-  register(context, 'luxcode.editWithAI', async () => {
-    await runEditorAction('edit', '¿Qué cambios quieres hacer?', 'Ej: Hazlo responsive, agrega animaciones...');
-  });
-
-  // Comando: Explicar código
-  register(context, 'luxcode.explainCode', async () => {
-    await runEditorAction('explain', null, null, true);
-  });
-
-  // Comando: Fix Bug
-  register(context, 'luxcode.fixBug', async () => {
-    await runEditorAction('fix', '¿Qué error tienes?', 'Pega el mensaje de error o describe el problema');
-  });
+  register(context, 'luxcode.openPanel', () => LuxCodePanel.createOrShow(context.extensionUri, context));
+  register(context, 'luxcode.generateWeb', () => runGenerator('web', context));
+  register(context, 'luxcode.generateMobile', () => runGenerator('mobile', context));
+  register(context, 'luxcode.generateDesktop', () => runGenerator('desktop', context));
+  register(context, 'luxcode.generateAPI', () => runAPIGenerator(context));
+  register(context, 'luxcode.agentTask', () => runAgentTask(context));
+  register(context, 'luxcode.mcpConnect', () => connectMCPServer());
+  register(context, 'luxcode.editWithAI', () => runEditorAction('edit', '¿Qué cambios quieres hacer?', 'Ej: Hazlo responsive, agrega animaciones...'));
+  register(context, 'luxcode.explainCode', () => runEditorAction('explain'));
+  register(context, 'luxcode.fixBug', () => runEditorAction('fix', '¿Qué error tienes?', 'Pega el mensaje de error'));
 }
 
-function register(ctx: vscode.ExtensionContext, cmd: string, fn: (...args: any[]) => any) {
+function register(ctx: vscode.ExtensionContext, cmd: string, fn: () => any) {
   ctx.subscriptions.push(vscode.commands.registerCommand(cmd, fn));
 }
 
-async function runGenerator(type: 'web' | 'mobile' | 'desktop', context: vscode.ExtensionContext) {
-  const targets = {
-    web: {
-      label: '🌐 Tipo de proyecto web',
-      options: ['Landing Page', 'Portfolio', 'Dashboard', 'Blog', 'E-commerce', 'Radio/Streaming', 'PWA', 'Personalizado']
-    },
-    mobile: {
-      label: '📱 Framework móvil',
-      options: ['React Native (JavaScript)', 'Flutter (Dart)', 'Ionic (HTML/CSS/JS)']
-    },
-    desktop: {
-      label: '🖥 Framework de escritorio',
-      options: ['Tauri (Rust + Web)', 'Electron (Node.js)', 'Neutralino.js (Ligero)']
-    }
+async function runGenerator(type: 'web' | 'mobile' | 'desktop', _ctx: vscode.ExtensionContext) {
+  const opts: Record<string, string[]> = {
+    web: ['Landing Page', 'Portfolio', 'Dashboard', 'Blog', 'E-commerce', 'Radio/Streaming', 'PWA', 'Personalizado'],
+    mobile: ['React Native', 'Flutter', 'Ionic'],
+    desktop: ['Tauri (Rust + Web)', 'Electron (Node.js)', 'Neutralino.js']
   };
-
-  const target = targets[type];
-  const subtype = await vscode.window.showQuickPick(target.options, { placeHolder: target.label });
+  const subtype = await vscode.window.showQuickPick(opts[type], { placeHolder: 'Elige el tipo de proyecto' });
   if (!subtype) return;
-
-  const description = await vscode.window.showInputBox({
-    prompt: `🤖 Describe tu ${type === 'web' ? 'página' : type === 'mobile' ? 'app móvil' : 'app de escritorio'}`,
-    placeHolder: 'Ej: App de gestión de tareas con modo oscuro y notificaciones'
+  const desc = await vscode.window.showInputBox({ prompt: '🤖 Describe tu proyecto', placeHolder: 'Ej: App de gestión de tareas con modo oscuro' });
+  if (!desc) return;
+  await runWithProgress(`🚀 Generando ${subtype}...`, async () => {
+    const { apiKey, provider } = getApiConfig();
+    const ai = new AIService(provider, apiKey);
+    const files = await ai.generate(type, subtype, desc);
+    await FileService.save(type, subtype, files);
+    vscode.window.showInformationMessage(`✅ ${subtype} generado. ¡Revisa tu workspace!`);
   });
-  if (!description) return;
+}
+
+async function runAPIGenerator(_ctx: vscode.ExtensionContext) {
+  const desc = await vscode.window.showInputBox({ prompt: '🔌 Describe tu API', placeHolder: 'Ej: API REST para blog con auth JWT y CRUD de posts' });
+  if (!desc) return;
+  const routesInput = await vscode.window.showInputBox({ prompt: 'Rutas a generar (opcional)', placeHolder: 'Ej: GET /posts, POST /posts, DELETE /posts/:id' });
+  const routes = routesInput ? routesInput.split(',').map(r => r.trim()) : [];
+  await runWithProgress('🔌 Generando API...', async () => {
+    const { apiKey, provider } = getApiConfig();
+    const ai = new AIService(provider, apiKey);
+    const files = await ai.generateAPI(desc, routes);
+    await FileService.save('api', 'Node.js API', files);
+    vscode.window.showInformationMessage('✅ API generada. ¡Revisa tu workspace!');
+  });
+}
+
+async function runAgentTask(_ctx: vscode.ExtensionContext) {
+  const goal = await vscode.window.showInputBox({
+    prompt: '🤖 ¿Qué quieres que el agente construya? (tarea compleja)',
+    placeHolder: 'Ej: Crea una web app completa de reservas con base de datos, auth y dashboard admin'
+  });
+  if (!goal) return;
 
   const { apiKey, provider } = getApiConfig();
   if (!apiKey && !['ollama', 'lmstudio'].includes(provider)) {
-    vscode.window.showErrorMessage(`⚠️ Configura tu API Key de ${provider} en Ajustes > LuxCode AI`);
+    vscode.window.showErrorMessage('⚠️ Configura tu API Key primero');
     return;
   }
 
-  await vscode.window.withProgress({
-    location: vscode.ProgressLocation.Notification,
-    title: `🚀 LuxCode AI generando tu ${subtype}...`,
-    cancellable: false
-  }, async () => {
-    try {
-      const ai = new AIService(provider, apiKey);
-      const result = await ai.generate(type, subtype, description);
-      await FileService.save(type, subtype, result);
-      vscode.window.showInformationMessage(`✅ ${subtype} generado. ¡Revisa tu workspace!`);
-    } catch (err: any) {
-      vscode.window.showErrorMessage(`❌ Error: ${err.message}`);
+  // Mostrar panel con progreso del agente
+  LuxCodePanel.createOrShow(vscode.Uri.file(''), _ctx);
+
+  await runWithProgress('🤖 Agente planificando tarea...', async () => {
+    const agent = new AgentService(provider, apiKey);
+    const task = await agent.planTask(goal);
+
+    vscode.window.showInformationMessage(`🤖 Plan: ${task.steps.length} pasos. Ejecutando...`);
+
+    const files = await agent.executeTask(task, (steps) => {
+      const done = steps.filter(s => s.status === 'done').length;
+      console.log(`Progreso: ${done}/${steps.length}`);
+    });
+
+    if (Object.keys(files).length > 0) {
+      await FileService.save('web', 'agent-task', files);
+    }
+    vscode.window.showInformationMessage(`✅ Agente completó la tarea: ${task.steps.length} pasos ejecutados`);
+  });
+}
+
+async function connectMCPServer() {
+  const name = await vscode.window.showInputBox({ prompt: 'Nombre del servidor MCP', placeHolder: 'Ej: mi-servidor-mcp' });
+  if (!name) return;
+  const url = await vscode.window.showInputBox({ prompt: 'URL del servidor MCP', placeHolder: 'http://localhost:3000' });
+  if (!url) return;
+  await mcpService.connectServer(name, url);
+}
+
+async function runEditorAction(action: string, prompt?: string, placeholder?: string) {
+  const editor = vscode.window.activeTextEditor;
+  if (!editor) return;
+  const selected = editor.document.getText(editor.selection);
+  if (!selected) { vscode.window.showWarningMessage('Selecciona código primero'); return; }
+  let instruction = '';
+  if (prompt) {
+    const inp = await vscode.window.showInputBox({ prompt, placeHolder: placeholder || '' });
+    if (!inp) return;
+    instruction = inp;
+  }
+  const { apiKey, provider } = getApiConfig();
+  const ai = new AIService(provider, apiKey);
+  await runWithProgress('✨ Procesando con IA...', async () => {
+    let result = '';
+    if (action === 'edit') result = await ai.editCode(selected, instruction);
+    else if (action === 'explain') result = await ai.explainCode(selected);
+    else if (action === 'fix') result = await ai.fixBug(selected, instruction);
+    if (action === 'explain') {
+      const doc = await vscode.workspace.openTextDocument({ content: result, language: 'markdown' });
+      vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+    } else {
+      editor.edit(b => b.replace(editor.selection, result));
+      vscode.window.showInformationMessage('✅ Código actualizado');
     }
   });
 }
 
-async function runEditorAction(action: string, prompt: string | null, placeholder: string | null, noInput = false) {
-  const editor = vscode.window.activeTextEditor;
-  if (!editor) return;
-  const selectedText = editor.document.getText(editor.selection);
-  if (!selectedText) { vscode.window.showWarningMessage('Selecciona código primero'); return; }
-
-  let instruction = '';
-  if (!noInput && prompt) {
-    const input = await vscode.window.showInputBox({ prompt, placeHolder: placeholder || '' });
-    if (!input) return;
-    instruction = input;
-  }
-
-  const { apiKey, provider } = getApiConfig();
-  const ai = new AIService(provider, apiKey);
-
-  await vscode.window.withProgress({
-    location: vscode.ProgressLocation.Notification,
-    title: '✨ LuxCode AI procesando...',
-    cancellable: false
-  }, async () => {
-    try {
-      let result = '';
-      if (action === 'edit') result = await ai.editCode(selectedText, instruction);
-      else if (action === 'explain') result = await ai.explainCode(selectedText);
-      else if (action === 'fix') result = await ai.fixBug(selectedText, instruction);
-
-      if (action === 'explain') {
-        const doc = await vscode.workspace.openTextDocument({ content: result, language: 'markdown' });
-        vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
-      } else {
-        editor.edit(b => b.replace(editor.selection, result));
-        vscode.window.showInformationMessage('✅ Código actualizado');
-      }
-    } catch (err: any) {
-      vscode.window.showErrorMessage(`❌ Error: ${err.message}`);
-    }
+async function runWithProgress(title: string, fn: () => Promise<void>) {
+  await vscode.window.withProgress({ location: vscode.ProgressLocation.Notification, title, cancellable: false }, async () => {
+    try { await fn(); } catch (err: any) { vscode.window.showErrorMessage(`❌ Error: ${err.message}`); }
   });
 }
 
 function getApiConfig(): { apiKey: string; provider: string } {
-  const config = vscode.workspace.getConfiguration('luxcode');
-  const provider = config.get<string>('apiProvider', 'gemini');
-  const keyMap: Record<string, string> = {
-    gemini: config.get<string>('geminiApiKey', ''),
-    openai: config.get<string>('openaiApiKey', ''),
-    groq: config.get<string>('groqApiKey', ''),
-    openrouter: config.get<string>('openrouterApiKey', ''),
-    ollama: 'local',
-    lmstudio: 'local'
+  const cfg = vscode.workspace.getConfiguration('luxcode');
+  const provider = cfg.get<string>('apiProvider', 'gemini');
+  const keys: Record<string, string> = {
+    gemini: cfg.get('geminiApiKey', ''),
+    openai: cfg.get('openaiApiKey', ''),
+    groq: cfg.get('groqApiKey', ''),
+    openrouter: cfg.get('openrouterApiKey', ''),
+    ollama: 'local', lmstudio: 'local'
   };
-  return { apiKey: keyMap[provider] || '', provider };
+  return { apiKey: keys[provider] || '', provider };
 }
 
 class LuxCodeSidebarProvider implements vscode.WebviewViewProvider {
-  constructor(private readonly _uri: vscode.Uri, private readonly _ctx: vscode.ExtensionContext) {}
+  constructor(private _uri: vscode.Uri, private _ctx: vscode.ExtensionContext) {}
   resolveWebviewView(view: vscode.WebviewView) {
     view.webview.options = { enableScripts: true };
     view.webview.html = LuxCodePanel.getWebviewContent(view.webview, this._uri);
-    view.webview.onDidReceiveMessage(async (msg) => handleMessage(msg));
-  }
-}
-
-async function handleMessage(msg: any) {
-  const config = vscode.workspace.getConfiguration('luxcode');
-  switch (msg.command) {
-    case 'generateWeb': await vscode.commands.executeCommand('luxcode.generateWeb'); break;
-    case 'generateMobile': await vscode.commands.executeCommand('luxcode.generateMobile'); break;
-    case 'generateDesktop': await vscode.commands.executeCommand('luxcode.generateDesktop'); break;
-    case 'saveConfig':
-      await config.update('apiProvider', msg.provider, true);
-      if (msg.key && msg.provider === 'gemini') await config.update('geminiApiKey', msg.key, true);
-      if (msg.key && msg.provider === 'openai') await config.update('openaiApiKey', msg.key, true);
-      if (msg.key && msg.provider === 'groq') await config.update('groqApiKey', msg.key, true);
-      if (msg.key && msg.provider === 'openrouter') await config.update('openrouterApiKey', msg.key, true);
-      if (msg.ollamaModel) await config.update('ollamaModel', msg.ollamaModel, true);
-      vscode.window.showInformationMessage('✅ Configuración guardada');
-      break;
+    view.webview.onDidReceiveMessage(async (msg) => {
+      switch(msg.command) {
+        case 'generateWeb': await vscode.commands.executeCommand('luxcode.generateWeb'); break;
+        case 'generateMobile': await vscode.commands.executeCommand('luxcode.generateMobile'); break;
+        case 'generateDesktop': await vscode.commands.executeCommand('luxcode.generateDesktop'); break;
+        case 'generateAPI': await vscode.commands.executeCommand('luxcode.generateAPI'); break;
+        case 'agentTask': await vscode.commands.executeCommand('luxcode.agentTask'); break;
+        case 'mcpConnect': await vscode.commands.executeCommand('luxcode.mcpConnect'); break;
+        case 'saveConfig': {
+          const cfg = vscode.workspace.getConfiguration('luxcode');
+          await cfg.update('apiProvider', msg.provider, true);
+          if (msg.key) {
+            const keyMap: Record<string,string> = { gemini:'geminiApiKey', openai:'openaiApiKey', groq:'groqApiKey', openrouter:'openrouterApiKey' };
+            if (keyMap[msg.provider]) await cfg.update(keyMap[msg.provider], msg.key, true);
+          }
+          if (msg.ollamaModel) await cfg.update('ollamaModel', msg.ollamaModel, true);
+          vscode.window.showInformationMessage('✅ Configuración guardada');
+          break;
+        }
+      }
+    });
   }
 }
 
