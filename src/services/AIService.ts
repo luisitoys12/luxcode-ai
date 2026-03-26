@@ -1,110 +1,133 @@
 export class AIService {
-  private provider: string;
-  private apiKey: string;
+  constructor(private provider: string, private apiKey: string) {}
 
-  constructor(provider: string, apiKey: string) {
-    this.provider = provider;
-    this.apiKey = apiKey;
-  }
-
-  async generateWebPage(description: string): Promise<{ html: string; css: string; js: string }> {
-    const prompt = `Eres un experto desarrollador web. Crea una página web completa y moderna basada en esta descripción:
-
-"${description}"
-
-Respóndeme ÚNICAMENTE con JSON en este formato exacto, sin markdown ni explicaciones:
-{
-  "html": "<el HTML completo aquí>",
-  "css": "<el CSS completo aquí>",
-  "js": "<el JavaScript completo aquí>"
-}
-
-Requisitos:
-- HTML5 semántico y accesible
-- CSS moderno con variables, flexbox/grid, responsive
-- JavaScript vanilla funcional
-- Diseño atractivo y profesional
-- Paleta de colores coherente`;
-
-    const raw = this.provider === 'gemini'
-      ? await this.callGemini(prompt)
-      : await this.callOpenAI(prompt);
-
-    return this.parseJSON(raw);
+  async generate(type: 'web' | 'mobile' | 'desktop', subtype: string, description: string): Promise<Record<string, string>> {
+    const prompt = this.buildPrompt(type, subtype, description);
+    const raw = await this.callAI(prompt);
+    return this.parseFiles(raw);
   }
 
   async editCode(code: string, instruction: string): Promise<string> {
-    const prompt = `Eres un experto desarrollador web. Modifica el siguiente código según la instrucción dada.
+    const prompt = `Eres un experto desarrollador. Modifica el siguiente código según la instrucción.\n\nINSTRUCCIÓN: ${instruction}\n\nCÓDIGO:\n${code}\n\nResponde ÚNICAMENTE con el código modificado, sin markdown ni explicaciones.`;
+    return this.callAI(prompt);
+  }
 
-INSTRUCCIÓN: ${instruction}
+  async explainCode(code: string): Promise<string> {
+    const prompt = `Explica el siguiente código de forma clara y detallada en español. Usa formato Markdown con secciones:\n\n\`\`\`\n${code}\n\`\`\``;
+    return this.callAI(prompt);
+  }
 
-CÓDIGO ORIGINAL:
-${code}
+  async fixBug(code: string, error: string): Promise<string> {
+    const prompt = `Eres un experto en debugging. Corrige el bug en este código.\n\nERROR: ${error}\n\nCÓDIGO:\n${code}\n\nResponde ÚNICAMENTE con el código corregido, sin explicaciones.`;
+    return this.callAI(prompt);
+  }
 
-Responde ÚNICAMENTE con el código modificado, sin explicaciones ni markdown.`;
+  private buildPrompt(type: string, subtype: string, description: string): string {
+    const templates: Record<string, string> = {
+      web: `Eres un experto en desarrollo web moderno. Genera un proyecto "${subtype}" completo basado en:\n"${description}"\n\nResponde ÚNICAMENTE con JSON en este formato exacto (sin markdown):\n{\n  "index.html": "<HTML completo>",\n  "style.css": "<CSS moderno, variables, responsive>",\n  "script.js": "<JavaScript funcional>"\n}\nRequisitos: HTML5 semántico, CSS con variables/flexbox/grid, JS vanilla, diseño profesional oscuro/claro.`,
 
-    return this.provider === 'gemini'
-      ? await this.callGemini(prompt)
-      : await this.callOpenAI(prompt);
+      mobile: `Eres un experto en desarrollo móvil. Genera la estructura base de una app "${subtype}" para:\n"${description}"\n\nResponde ÚNICAMENTE con JSON (sin markdown) donde cada clave es el nombre del archivo y el valor su contenido completo. Incluye: pantalla principal, navegación, estilos, y README de instalación.`,
+
+      desktop: `Eres un experto en apps de escritorio. Genera la estructura base de una app "${subtype}" para:\n"${description}"\n\nResponde ÚNICAMENTE con JSON (sin markdown) donde cada clave es el nombre del archivo y el valor su contenido completo. Incluye: ventana principal, menú, estilos, package.json/Cargo.toml según framework, y README.`
+    };
+    return templates[type];
+  }
+
+  private async callAI(prompt: string): Promise<string> {
+    switch (this.provider) {
+      case 'gemini': return this.callGemini(prompt);
+      case 'openai': return this.callOpenAI(prompt, 'gpt-4o');
+      case 'groq': return this.callGroq(prompt);
+      case 'openrouter': return this.callOpenRouter(prompt);
+      case 'ollama': return this.callOllama(prompt);
+      case 'lmstudio': return this.callLMStudio(prompt);
+      default: throw new Error(`Proveedor no soportado: ${this.provider}`);
+    }
   }
 
   private async callGemini(prompt: string): Promise<string> {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${this.apiKey}`;
-    const body = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 8192 }
-    };
-
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: 0.7, maxOutputTokens: 8192 } })
     });
-
-    if (!res.ok) {
-      const err = await res.json() as any;
-      throw new Error(`Gemini API Error: ${err.error?.message || res.statusText}`);
-    }
-
-    const data = await res.json() as any;
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (!res.ok) { const e = await res.json() as any; throw new Error(`Gemini: ${e.error?.message}`); }
+    const d = await res.json() as any;
+    return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
   }
 
-  private async callOpenAI(prompt: string): Promise<string> {
-    const url = 'https://api.openai.com/v1/chat/completions';
-    const body = {
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-      max_tokens: 8192
-    };
+  private async callOpenAI(prompt: string, model = 'gpt-4o'): Promise<string> {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` },
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 8192 })
+    });
+    if (!res.ok) { const e = await res.json() as any; throw new Error(`OpenAI: ${e.error?.message}`); }
+    const d = await res.json() as any;
+    return d.choices?.[0]?.message?.content || '';
+  }
 
-    const res = await fetch(url, {
+  private async callGroq(prompt: string): Promise<string> {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.apiKey}` },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 8192 })
+    });
+    if (!res.ok) { const e = await res.json() as any; throw new Error(`Groq: ${e.error?.message}`); }
+    const d = await res.json() as any;
+    return d.choices?.[0]?.message?.content || '';
+  }
+
+  private async callOpenRouter(prompt: string): Promise<string> {
+    const config = { openrouterModel: 'deepseek/deepseek-coder' };
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        'Authorization': `Bearer ${this.apiKey}`,
+        'HTTP-Referer': 'https://luisitoys12.github.io/luxcode-ai',
+        'X-Title': 'LuxCode AI'
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify({ model: config.openrouterModel, messages: [{ role: 'user', content: prompt }], max_tokens: 8192 })
     });
-
-    if (!res.ok) {
-      const err = await res.json() as any;
-      throw new Error(`OpenAI API Error: ${err.error?.message || res.statusText}`);
-    }
-
-    const data = await res.json() as any;
-    return data.choices?.[0]?.message?.content || '';
+    if (!res.ok) { const e = await res.json() as any; throw new Error(`OpenRouter: ${e.error?.message}`); }
+    const d = await res.json() as any;
+    return d.choices?.[0]?.message?.content || '';
   }
 
-  private parseJSON(raw: string): { html: string; css: string; js: string } {
-    // Limpiar posible markdown
+  private async callOllama(prompt: string): Promise<string> {
+    const { workspace } = await import('vscode');
+    const config = workspace.getConfiguration('luxcode');
+    const url = config.get<string>('ollamaUrl', 'http://localhost:11434');
+    const model = config.get<string>('ollamaModel', 'llama3');
+    const res = await fetch(`${url}/api/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, prompt, stream: false })
+    });
+    if (!res.ok) throw new Error(`Ollama: ${res.statusText}`);
+    const d = await res.json() as any;
+    return d.response || '';
+  }
+
+  private async callLMStudio(prompt: string): Promise<string> {
+    const { workspace } = await import('vscode');
+    const config = workspace.getConfiguration('luxcode');
+    const url = config.get<string>('lmstudioUrl', 'http://localhost:1234');
+    const res = await fetch(`${url}/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: [{ role: 'user', content: prompt }], temperature: 0.7, max_tokens: 8192 })
+    });
+    if (!res.ok) throw new Error(`LM Studio: ${res.statusText}`);
+    const d = await res.json() as any;
+    return d.choices?.[0]?.message?.content || '';
+  }
+
+  private parseFiles(raw: string): Record<string, string> {
     const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim();
-    try {
-      return JSON.parse(cleaned);
-    } catch {
-      // Si falla el parse, devolver el raw como HTML
-      return { html: raw, css: '', js: '' };
-    }
+    try { return JSON.parse(cleaned); }
+    catch { return { 'index.html': raw }; }
   }
 }

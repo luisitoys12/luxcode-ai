@@ -1,47 +1,39 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 export class FileService {
-  static async saveGeneratedFiles(result: { html: string; css: string; js: string }): Promise<void> {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) {
-      throw new Error('Abre una carpeta en VS Code antes de generar archivos');
-    }
+  static async save(type: string, subtype: string, files: Record<string, string>): Promise<void> {
+    const folders = vscode.workspace.workspaceFolders;
+    if (!folders) throw new Error('Abre una carpeta en VS Code primero');
 
-    const root = workspaceFolders[0].uri;
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-    const folder = vscode.Uri.joinPath(root, `luxcode-${timestamp}`);
+    const slug = subtype.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const ts = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
+    const folder = vscode.Uri.joinPath(folders[0].uri, `luxcode-${slug}-${ts}`);
 
-    // Crear carpeta
     await vscode.workspace.fs.createDirectory(folder);
 
-    // Guardar index.html
-    const htmlContent = result.html.includes('<link rel="stylesheet"')
-      ? result.html
-      : result.html.replace('</head>', '  <link rel="stylesheet" href="style.css">\n</head>')
-          .replace('</body>', '  <script src="script.js"></script>\n</body>');
-
-    await vscode.workspace.fs.writeFile(
-      vscode.Uri.joinPath(folder, 'index.html'),
-      Buffer.from(htmlContent, 'utf-8')
-    );
-
-    if (result.css) {
+    for (const [filename, content] of Object.entries(files)) {
+      if (!content || !filename) continue;
+      // Crear subcarpetas si el archivo tiene path
+      const parts = filename.split('/');
+      if (parts.length > 1) {
+        const subdir = vscode.Uri.joinPath(folder, ...parts.slice(0, -1));
+        await vscode.workspace.fs.createDirectory(subdir);
+      }
       await vscode.workspace.fs.writeFile(
-        vscode.Uri.joinPath(folder, 'style.css'),
-        Buffer.from(result.css, 'utf-8')
+        vscode.Uri.joinPath(folder, filename),
+        Buffer.from(content, 'utf-8')
       );
     }
 
-    if (result.js) {
-      await vscode.workspace.fs.writeFile(
-        vscode.Uri.joinPath(folder, 'script.js'),
-        Buffer.from(result.js, 'utf-8')
-      );
-    }
+    // Abrir el archivo principal
+    const mainFile = files['index.html'] ? 'index.html'
+      : files['App.js'] ? 'App.js'
+      : files['src/main.rs'] ? 'src/main.rs'
+      : Object.keys(files)[0];
 
-    // Abrir el HTML generado
-    const doc = await vscode.workspace.openTextDocument(vscode.Uri.joinPath(folder, 'index.html'));
-    await vscode.window.showTextDocument(doc);
+    if (mainFile) {
+      const doc = await vscode.workspace.openTextDocument(vscode.Uri.joinPath(folder, mainFile));
+      await vscode.window.showTextDocument(doc);
+    }
   }
 }
