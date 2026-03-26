@@ -14,7 +14,7 @@ function fetchWithTimeout(url: string, options: RequestInit): Promise<Response> 
 function validateLocalUrl(url: string, provider: string): void {
   try {
     const parsed = new URL(url);
-    const isLocal = ['localhost','127.0.0.1','::1'].includes(parsed.hostname);
+    const isLocal = ['localhost','127.0.0.1','[::1]'].includes(parsed.hostname);
     if (!isLocal) { throw new Error(`${provider}: URL debe ser localhost, no "${parsed.hostname}"`); }
   } catch (e: any) {
     if (e.message.includes(provider)) { throw e; }

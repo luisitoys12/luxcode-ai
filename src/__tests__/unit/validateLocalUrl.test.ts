@@ -11,7 +11,7 @@ describe('validateLocalUrl — contrato de seguridad [FE-05]', () => {
   it('should accept localhost URLs', () => {
     VALID_LOCAL.forEach(url => {
       const parsed = new URL(url);
-      const isLocal = ['localhost','127.0.0.1','::1'].includes(parsed.hostname);
+      const isLocal = ['localhost','127.0.0.1','[::1]'].includes(parsed.hostname);
       expect(isLocal).toBe(true);
     });
   });
@@ -19,7 +19,7 @@ describe('validateLocalUrl — contrato de seguridad [FE-05]', () => {
   it('should reject external/private IPs', () => {
     INVALID_EXTERNAL.forEach(url => {
       const parsed = new URL(url);
-      const isLocal = ['localhost','127.0.0.1','::1'].includes(parsed.hostname);
+      const isLocal = ['localhost','127.0.0.1','[::1]'].includes(parsed.hostname);
       expect(isLocal).toBe(false);
     });
   });
