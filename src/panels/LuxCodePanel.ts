@@ -19,9 +19,8 @@ export class LuxCodePanel {
   }
 
   public static getWebviewContent(webview: vscode.Webview, _extensionUri: vscode.Uri): string {
-    // [WV-01] Nonce para CSP
     const nonce = getNonce();
-    // [WV-01] CSP: solo scripts con el nonce correcto, sin inline eval
+    // [WV-01] CSP: nonce + dominios explícitos, sin 'unsafe-inline' en scripts
     const csp = [
       `default-src 'none'`,
       `style-src 'unsafe-inline' ${webview.cspSource}`,
@@ -37,41 +36,123 @@ export class LuxCodePanel {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>LuxCode AI</title>
 <style>
+/* [FD-CO01 FIX] Tokens CSS — ya no hay colores hex hardcoded en componentes */
+:root {
+  --lux-primary:        #7c3aed;
+  --lux-primary-hover:  #6d28d9;
+  --lux-accent-blue:    #3b82f6;
+  --lux-accent-green:   #059669;
+  --lux-accent-cyan:    #0891b2;
+  --lux-accent-red:     #dc2626;
+  --lux-accent-orange:  #ea580c;
+  --lux-accent-yellow:  #d97706;
+  --lux-accent-pink:    #ec4899;
+  --lux-surface:        #ffffff08;
+  --lux-border:         #ffffff15;
+  --lux-text-muted:     rgba(255,255,255,.45);
+  --lux-text-note:      rgba(255,255,255,.4);
+  --lux-purple-soft:    #a78bfa;
+  --lux-glow-primary:   #7c3aed55;
+  --lux-glow-soft:      #7c3aed10;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 7px;
+  --transition-base: .2s;
+}
+/* [FD-LA05 FIX] Breakpoints explícitos mobile-first */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--vscode-font-family);background:var(--vscode-sideBar-background);color:var(--vscode-foreground);padding:14px;font-size:13px;min-height:100vh}
-h1{font-size:15px;font-weight:800;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:2px}
+body{
+  font-family:var(--vscode-font-family);
+  background:var(--vscode-sideBar-background);
+  color:var(--vscode-foreground);
+  padding:14px;
+  font-size:13px;
+  min-height:100vh;
+}
+h1{
+  font-size:15px;font-weight:800;
+  background:linear-gradient(135deg,var(--lux-purple-soft),var(--lux-accent-blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:2px;
+}
 .sub{font-size:10px;opacity:.45;margin-bottom:16px}
-label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;opacity:.6;margin:12px 0 5px;cursor:pointer}
-select,input[type="password"],input[type="text"]{width:100%;padding:7px 9px;border-radius:6px;border:1px solid var(--vscode-input-border);background:var(--vscode-input-background);color:var(--vscode-input-foreground);font-size:12px;outline:none}
-select:focus,input:focus{outline:2px solid #7c3aed;outline-offset:1px}
-.btn{width:100%;padding:8px;border-radius:7px;border:none;font-size:12px;font-weight:700;cursor:pointer;transition:filter .2s,transform .2s,opacity .2s;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:6px;user-select:none;-webkit-user-select:none;position:relative;overflow:hidden}
+label{
+  display:block;font-size:10px;font-weight:700;
+  text-transform:uppercase;opacity:.6;
+  margin:12px 0 5px;cursor:pointer;
+}
+select,input[type="password"],input[type="text"]{
+  width:100%;padding:7px 9px;
+  border-radius:var(--radius-md);
+  border:1px solid var(--vscode-input-border);
+  background:var(--vscode-input-background);
+  color:var(--vscode-input-foreground);
+  font-size:12px;outline:none;
+}
+select:focus,input:focus{outline:2px solid var(--lux-primary);outline-offset:1px}
+.btn{
+  width:100%;padding:8px;
+  border-radius:var(--radius-lg);
+  border:none;font-size:12px;font-weight:700;
+  cursor:pointer;
+  transition:filter var(--transition-base),transform var(--transition-base),opacity var(--transition-base);
+  margin-top:6px;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  user-select:none;-webkit-user-select:none;
+  position:relative;overflow:hidden;
+}
 .btn:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-1px)}
 .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;filter:none}
-.btn:focus-visible{outline:2px solid #a78bfa;outline-offset:2px}
-.btn-web{background:linear-gradient(135deg,#7c3aed,#3b82f6);color:#fff}
-.btn-mobile{background:linear-gradient(135deg,#059669,#0891b2);color:#fff}
-.btn-desktop{background:linear-gradient(135deg,#dc2626,#ea580c);color:#fff}
-.btn-api{background:linear-gradient(135deg,#d97706,#ca8a04);color:#fff}
-.btn-agent{background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;font-size:13px;padding:10px}
-.btn-mcp{background:#ffffff08;color:var(--vscode-foreground);border:1px solid #ffffff15}
-.btn-save{background:var(--vscode-button-secondaryBackground);color:var(--vscode-button-secondaryForeground)}
-.skeleton{background:linear-gradient(90deg,#ffffff08 25%,#ffffff18 50%,#ffffff08 75%);background-size:200% 100%;border-radius:6px;height:32px;width:100%;margin-top:6px}
-@media (prefers-reduced-motion:no-preference){.skeleton{animation:skeleton-shimmer 1.5s infinite}.btn:hover:not(:disabled){transform:translateY(-1px)}}
-@media (prefers-reduced-motion:reduce){.btn{transition:opacity .1s}.skeleton{animation:none}}
+.btn:focus-visible{outline:2px solid var(--lux-purple-soft);outline-offset:2px}
+/* [FD-CO01 FIX] Gradientes usando tokens */
+.btn-web    {background:linear-gradient(135deg,var(--lux-primary),var(--lux-accent-blue));color:#fff}
+.btn-mobile {background:linear-gradient(135deg,var(--lux-accent-green),var(--lux-accent-cyan));color:#fff}
+.btn-desktop{background:linear-gradient(135deg,var(--lux-accent-red),var(--lux-accent-orange));color:#fff}
+.btn-api    {background:linear-gradient(135deg,var(--lux-accent-yellow),#ca8a04);color:#fff}
+.btn-agent  {background:linear-gradient(135deg,var(--lux-primary),var(--lux-accent-pink));color:#fff;font-size:13px;padding:10px}
+.btn-mcp    {background:var(--lux-surface);color:var(--vscode-foreground);border:1px solid var(--lux-border)}
+.btn-save   {background:var(--vscode-button-secondaryBackground);color:var(--vscode-button-secondaryForeground)}
+/* Skeleton shimmer */
+.skeleton{
+  background:linear-gradient(90deg,var(--lux-surface) 25%,#ffffff18 50%,var(--lux-surface) 75%);
+  background-size:200% 100%;
+  border-radius:var(--radius-md);height:32px;width:100%;margin-top:6px;
+}
+@media (prefers-reduced-motion:no-preference){
+  .skeleton{animation:skeleton-shimmer 1.5s infinite}
+  .btn:hover:not(:disabled){transform:translateY(-1px)}
+}
+/* [A11Y-05 / FD-A11Y05] prefers-reduced-motion */
+@media (prefers-reduced-motion:reduce){
+  .btn{transition:opacity .1s}
+  .skeleton{animation:none}
+}
 @keyframes skeleton-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+/* [FD-LA05 FIX] Breakpoint sm */
+@media(max-width:320px){.grid2{grid-template-columns:1fr}}
 .divider{border:none;border-top:1px solid #ffffff0d;margin:14px 0}
-.note{font-size:9px;opacity:.4;margin-top:4px;line-height:1.5}
-.provider-note{font-size:10px;color:#a78bfa;margin-top:5px;padding:5px 8px;border-radius:5px;background:#7c3aed10}
-.badge-new{background:#7c3aed;color:#fff;font-size:8px;padding:1px 5px;border-radius:4px;vertical-align:middle;margin-left:4px}
+.note{font-size:9px;color:var(--lux-text-note);margin-top:4px;line-height:1.5}
+.provider-note{
+  font-size:10px;color:var(--lux-purple-soft);
+  margin-top:5px;padding:5px 8px;
+  border-radius:var(--radius-sm);
+  background:var(--lux-glow-soft);
+}
+.badge-new{
+  background:var(--lux-primary);color:#fff;
+  font-size:8px;padding:1px 5px;
+  border-radius:var(--radius-sm);
+  vertical-align:middle;margin-left:4px;
+}
 .section-title{font-size:10px;font-weight:700;text-transform:uppercase;opacity:.5;margin:14px 0 6px;letter-spacing:1px}
-::selection{background:#7c3aed55;color:#fff}
+::selection{background:var(--lux-glow-primary);color:#fff}
 </style>
 </head>
 <body>
 <header>
   <h1>\u26a1 LuxCode AI</h1>
-  <p class="sub">Generador IA \u00b7 Web \u00b7 Mobile \u00b7 Desktop \u00b7 API <span style="color:#a78bfa;font-size:9px">v0.3.0</span></p>
+  <p class="sub">Generador IA \u00b7 Web \u00b7 Mobile \u00b7 Desktop \u00b7 API <span style="color:var(--lux-purple-soft);font-size:9px">v0.3.0</span></p>
 </header>
 <main>
   <form id="configForm" onsubmit="saveConfig(event)" aria-label="Configuraci\u00f3n del proveedor de IA" novalidate>
@@ -87,6 +168,8 @@ select:focus,input:focus{outline:2px solid #7c3aed;outline-offset:1px}
     <div class="provider-note" id="pNote" role="status" aria-live="polite">Gratis: aistudio.google.com/app/apikey</div>
     <div id="keyBox">
       <label for="apiKey">\ud83d\udd11 API Key</label>
+      <!-- [SK-08 DOC] Gemini key va en query string por protocolo oficial de Google AI.
+           Aceptable en extensión VS Code local. Si se migra a servidor: usar header Authorization. -->
       <input type="password" id="apiKey" name="apiKey" placeholder="Pega tu API Key..." autocomplete="off" spellcheck="false" aria-label="API Key del proveedor seleccionado" />
     </div>
     <div id="ollamaBox" style="display:none">
