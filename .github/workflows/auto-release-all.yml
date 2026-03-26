@@ -9,33 +9,47 @@ on:
         default: 'SI'
 
 jobs:
+  # ── v0.1.0-beta ────────────────────────────────────────────────────────────
   release-v010-beta:
-    name: 📦 v0.1.0-beta
+    name: 📦 Release v0.1.0-beta
     runs-on: ubuntu-latest
     if: github.event.inputs.confirm == 'SI'
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - run: npm install
-      - run: npm install -g typescript @vscode/vsce
-      - run: npm run compile
-      - run: npm version 0.1.0 --no-git-tag-version --allow-same-version
-      - run: vsce package --no-dependencies --allow-missing-publisher
-      - name: Tag v0.1.0-beta
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile TypeScript
+        run: npx tsc -p ./     # [FIX GA-04] npx tsc, no npm install -g typescript
+
+      - name: Set version 0.1.0
+        run: npm version 0.1.0 --no-git-tag-version --allow-same-version
+
+      - name: Package VSIX
+        run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher  # [FIX GA-04]
+
+      - name: Create tag v0.1.0-beta
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag v0.1.0-beta 2>/dev/null || true
-          git push origin v0.1.0-beta 2>/dev/null || true
-      - uses: softprops/action-gh-release@v2
+          git tag v0.1.0-beta 2>/dev/null || echo "Tag ya existe"
+          git push origin v0.1.0-beta 2>/dev/null || echo "Tag ya pusheado"
+
+      - name: 🚀 GitHub Release v0.1.0-beta
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v0.1.0-beta
           name: "⚡ LuxCode AI v0.1.0-beta"
           prerelease: true
+          fail_on_unmatched_files: false
           files: "*.vsix"
           body: |
             ## ⚡ LuxCode AI v0.1.0-beta — Primera versión
@@ -47,33 +61,46 @@ jobs:
 
             **API Key gratis:** https://aistudio.google.com/app/apikey
 
+  # ── v0.2.0 ────────────────────────────────────────────────────────────────
   release-v020:
-    name: 📦 v0.2.0
+    name: 📦 Release v0.2.0
     runs-on: ubuntu-latest
     needs: release-v010-beta
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+
       - run: npm install
-      - run: npm install -g typescript @vscode/vsce
-      - run: npm run compile
-      - run: npm version 0.2.0 --no-git-tag-version --allow-same-version
-      - run: vsce package --no-dependencies --allow-missing-publisher
-      - name: Tag v0.2.0
+
+      - name: Compile TypeScript
+        run: npx tsc -p ./
+
+      - name: Set version 0.2.0
+        run: npm version 0.2.0 --no-git-tag-version --allow-same-version
+
+      - name: Package VSIX
+        run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher
+
+      - name: Create tag v0.2.0
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag v0.2.0 2>/dev/null || true
-          git push origin v0.2.0 2>/dev/null || true
-      - uses: softprops/action-gh-release@v2
+          git tag v0.2.0 2>/dev/null || echo "Tag ya existe"
+          git push origin v0.2.0 2>/dev/null || echo "Tag ya pusheado"
+
+      - name: 🚀 GitHub Release v0.2.0
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v0.2.0
           name: "⚡ LuxCode AI v0.2.0"
           prerelease: false
+          fail_on_unmatched_files: false
           files: "*.vsix"
           body: |
             ## ⚡ LuxCode AI v0.2.0
@@ -85,33 +112,46 @@ jobs:
 
             **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
 
+  # ── v0.3.0 ────────────────────────────────────────────────────────────────
   release-v030:
-    name: 📦 v0.3.0
+    name: 📦 Release v0.3.0
     runs-on: ubuntu-latest
     needs: release-v020
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+          cache: 'npm'
+
       - run: npm install
-      - run: npm install -g typescript @vscode/vsce
-      - run: npm run compile
-      - run: npm version 0.3.0 --no-git-tag-version --allow-same-version
-      - run: vsce package --no-dependencies --allow-missing-publisher
-      - name: Tag v0.3.0
+
+      - name: Compile TypeScript
+        run: npx tsc -p ./
+
+      - name: Set version 0.3.0
+        run: npm version 0.3.0 --no-git-tag-version --allow-same-version
+
+      - name: Package VSIX
+        run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher
+
+      - name: Create tag v0.3.0
         run: |
-          git config user.name "github-actions[bot]"
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git tag v0.3.0 2>/dev/null || true
-          git push origin v0.3.0 2>/dev/null || true
-      - uses: softprops/action-gh-release@v2
+          git tag v0.3.0 2>/dev/null || echo "Tag ya existe"
+          git push origin v0.3.0 2>/dev/null || echo "Tag ya pusheado"
+
+      - name: 🚀 GitHub Release v0.3.0
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v0.3.0
           name: "⚡ LuxCode AI v0.3.0 — Agente + MCP"
           prerelease: false
+          fail_on_unmatched_files: false
           files: "*.vsix"
           body: |
             ## ⚡ LuxCode AI v0.3.0 — La versión más poderosa
@@ -124,3 +164,13 @@ jobs:
             **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
 
             **Sitio web:** https://luisitoys12.github.io/luxcode-ai
+
+      - name: "✅ Todos los releases publicados"
+        run: |
+          echo "## ✅ Releases publicados" >> $GITHUB_STEP_SUMMARY
+          echo "| Versión | Estado |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| v0.1.0-beta | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| v0.2.0      | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| v0.3.0      | ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| [Ver releases](https://github.com/luisitoys12/luxcode-ai/releases) | 🔗 |" >> $GITHUB_STEP_SUMMARY
