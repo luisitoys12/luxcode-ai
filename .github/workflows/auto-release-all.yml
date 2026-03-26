@@ -1,0 +1,157 @@
+name: 🎟️ Publicar todos los releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Escribe SI para confirmar publicar v0.1.0-beta, v0.2.0 y v0.3.0'
+        required: true
+        default: 'SI'
+
+jobs:
+  release-v010-beta:
+    name: 📦 Release v0.1.0-beta
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'SI'
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install
+      - run: npm run compile
+      - run: npm install -g @vscode/vsce
+      - name: Set version in package.json to 0.1.0
+        run: npm version 0.1.0 --no-git-tag-version
+      - run: vsce package --no-dependencies
+      - name: Create tag v0.1.0-beta
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v0.1.0-beta || echo "Tag exists"
+          git push origin v0.1.0-beta || echo "Already pushed"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.0-beta
+          name: "⚡ LuxCode AI v0.1.0-beta"
+          prerelease: true
+          body: |
+            ## ⚡ LuxCode AI v0.1.0-beta — Primera versión
+
+            ### ✨ Incluye
+            - 🌐 Generador de páginas web (HTML+CSS+JS)
+            - 🔑 Soporte Gemini 2.0 Flash (gratis) y OpenAI GPT-4o
+            - 🎨 Panel lateral con interfaz visual
+            - 📁 Archivos guardados automáticamente en tu workspace
+
+            ### 📦 Instalar
+            Descarga el `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
+
+            ### 🔑 API Key gratis
+            Gemini: https://aistudio.google.com/app/apikey
+          files: "*.vsix"
+          fail_on_unmatched_files: false
+
+  release-v020:
+    name: 📦 Release v0.2.0
+    runs-on: ubuntu-latest
+    needs: release-v010-beta
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install
+      - run: npm run compile
+      - run: npm install -g @vscode/vsce
+      - name: Set version to 0.2.0
+        run: npm version 0.2.0 --no-git-tag-version
+      - run: vsce package --no-dependencies
+      - name: Create tag v0.2.0
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v0.2.0 || echo "Tag exists"
+          git push origin v0.2.0 || echo "Already pushed"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.2.0
+          name: "⚡ LuxCode AI v0.2.0"
+          prerelease: false
+          body: |
+            ## ⚡ LuxCode AI v0.2.0
+
+            ### ✨ Nuevo en esta versión
+            - 📱 Generador de **Apps Móviles** (React Native, Flutter, Ionic)
+            - 🖥 Generador de **Apps de Escritorio** (Tauri, Electron, Neutralino.js)
+            - ⚡ **Groq** (Llama 3.3 70B) — gratis y ultra rápido
+            - 🦙 **Ollama** — modelos locales sin internet (Llama3, Mistral, CodeLlama...)
+            - 🖥 **LM Studio** — modelos locales con interfaz gráfica
+            - 🌐 **OpenRouter** — acceso a 100+ modelos
+            - Nuevos comandos: Explicar código, Corregir bug
+
+            ### 📦 Instalar
+            Descarga el `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
+          files: "*.vsix"
+          fail_on_unmatched_files: false
+
+  release-v030:
+    name: 📦 Release v0.3.0
+    runs-on: ubuntu-latest
+    needs: release-v020
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install
+      - run: npm run compile
+      - run: npm install -g @vscode/vsce
+      - name: Set version to 0.3.0
+        run: npm version 0.3.0 --no-git-tag-version
+      - run: vsce package --no-dependencies
+      - name: Create tag v0.3.0
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag v0.3.0 || echo "Tag exists"
+          git push origin v0.3.0 || echo "Already pushed"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.3.0
+          name: "⚡ LuxCode AI v0.3.0 — Modo Agente + MCP"
+          prerelease: false
+          body: |
+            ## ⚡ LuxCode AI v0.3.0 — La versión más poderosa
+
+            ### 🤖 Nuevo — Modo Agente
+            Planifica y ejecuta proyectos complejos en múltiples pasos automáticos.
+            Inspirado en Kilo.ai y Cline. Completamente gratis.
+
+            ### 🔌 Nuevo — MCP (Model Context Protocol)
+            - Conecta servidores MCP externos
+            - LuxCode se expone como servidor MCP para otros agentes (Copilot, Claude, Cline)
+            - 6 herramientas nativas listas para usar
+
+            ### 🔌 Nuevo — Generador de APIs REST
+            Node.js + Express con auth JWT, rutas CRUD y README.
+
+            ### 📄 Nuevo — AGENTS.md + llms.txt
+            Contexto optimizado para que otros agentes IA entiendan el proyecto.
+
+            ### 📦 Instalar
+            Descarga el `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
+
+            ### 🌐 Sitio web
+            https://luisitoys12.github.io/luxcode-ai
+          files: "*.vsix"
+          fail_on_unmatched_files: false
