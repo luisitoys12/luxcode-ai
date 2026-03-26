@@ -15,92 +15,82 @@ describe('AIService', () => {
     });
 
     it('should create instance with groq provider', () => {
-      const groqAI = new AIService('groq', 'groq-key');
-      expect(groqAI).toBeDefined();
+      expect(new AIService('groq', 'groq-key')).toBeDefined();
     });
 
-    it('should create instance with ollama local provider', () => {
-      const ollamaAI = new AIService('ollama', 'local');
-      expect(ollamaAI).toBeDefined();
+    it('should create instance with ollama provider', () => {
+      expect(new AIService('ollama', 'local')).toBeDefined();
     });
   });
 
   describe('generate()', () => {
-    it('should call fetch with correct Gemini endpoint', async () => {
+    it('should return files object on success', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
+        ok: true, status: 200,
         json: async () => ({
-          candidates: [{
-            content: { parts: [{ text: '<!-- index.html -->\n<!DOCTYPE html>\n<html></html>' }] }
-          }]
+          candidates: [{ content: { parts: [{ text: '{"index.html":"<html></html>"}' }] } }]
         }),
       } as Response);
-
-      const result = await ai.generate('web', 'Landing Page', 'Radio streaming con chat');
+      const result = await ai.generate('web', 'Landing Page', 'Radio streaming');
       expect(result).toBeDefined();
       expect(typeof result).toBe('object');
     });
 
-    it('should return files object with at least one file', async () => {
+    it('should fallback to index.html key on non-JSON response', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
+        ok: true, status: 200,
         json: async () => ({
-          candidates: [{
-            content: { parts: [{ text: '<!-- index.html -->\n<html><body>Radio</body></html>' }] }
-          }]
+          candidates: [{ content: { parts: [{ text: '<html><body>Radio</body></html>' }] } }]
         }),
       } as Response);
-
-      const result = await ai.generate('web', 'Radio/Streaming', 'Estación de radio');
-      expect(Object.keys(result).length).toBeGreaterThanOrEqual(0);
+      const result = await ai.generate('web', 'Radio', 'Estación');
+      expect(Object.keys(result).length).toBeGreaterThanOrEqual(1);
     });
 
-    it('should handle fetch error gracefully', async () => {
-      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-        new Error('Network error')
-      );
-
-      await expect(ai.generate('web', 'Landing Page', 'Test')).rejects.toThrow();
+    it('should throw on network error', async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Network error'));
+      await expect(ai.generate('web', 'LP', 'Test')).rejects.toThrow();
     });
 
-    it('should handle non-ok response', async () => {
+    it('should throw on 401 response', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: false,
-        status: 401,
+        ok: false, status: 401,
         json: async () => ({ error: { message: 'Invalid API key' } }),
       } as Response);
-
       await expect(ai.generate('web', 'Portfolio', 'Test')).rejects.toThrow();
+    });
+
+    it('should use react-nextjs rules for nextjs subtype', async () => {
+      (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+        ok: true, status: 200,
+        json: async () => ({
+          candidates: [{ content: { parts: [{ text: '{"app/page.tsx":"export default function Page(){}"}' }] } }]
+        }),
+      } as Response);
+      const result = await ai.generate('web', 'nextjs', 'Blog');
+      expect(result).toBeDefined();
     });
   });
 
   describe('generateAPI()', () => {
-    it('should generate API with given description', async () => {
+    it('should call AI and return files object', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
+        ok: true, status: 200,
         json: async () => ({
-          candidates: [{
-            content: { parts: [{ text: '// server.js\nconst express = require(\'express\');' }] }
-          }]
+          candidates: [{ content: { parts: [{ text: '{"server.js":"const express = require(\'express\');"}' }] } }]
         }),
       } as Response);
-
-      const result = await ai.generateAPI('API de blog con auth JWT', ['GET /posts', 'POST /posts']);
+      const result = await ai.generateAPI('API de blog', ['GET /posts']);
       expect(result).toBeDefined();
     });
 
     it('should work with empty routes array', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
+        ok: true, status: 200,
         json: async () => ({
-          candidates: [{ content: { parts: [{ text: '// api.js\nconsole.log("api")' }] } }]
+          candidates: [{ content: { parts: [{ text: '{"server.js":"// api"}' }] } }]
         }),
       } as Response);
-
       const result = await ai.generateAPI('Simple API', []);
       expect(result).toBeDefined();
     });
@@ -109,14 +99,12 @@ describe('AIService', () => {
   describe('editCode()', () => {
     it('should return edited code string', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
+        ok: true, status: 200,
         json: async () => ({
           candidates: [{ content: { parts: [{ text: 'const x = 1;' }] } }]
         }),
       } as Response);
-
-      const result = await ai.editCode('var x = 1', 'usa const en lugar de var');
+      const result = await ai.editCode('var x = 1', 'usa const');
       expect(typeof result).toBe('string');
     });
   });
@@ -124,13 +112,11 @@ describe('AIService', () => {
   describe('explainCode()', () => {
     it('should return explanation string', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
+        ok: true, status: 200,
         json: async () => ({
-          candidates: [{ content: { parts: [{ text: 'Este código hace X...' }] } }]
+          candidates: [{ content: { parts: [{ text: 'Esta función hace X...' }] } }]
         }),
       } as Response);
-
       const result = await ai.explainCode('const x = () => {}');
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
@@ -138,16 +124,14 @@ describe('AIService', () => {
   });
 
   describe('fixBug()', () => {
-    it('should return fixed code', async () => {
+    it('should return fixed code string', async () => {
       (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-        ok: true,
-        status: 200,
+        ok: true, status: 200,
         json: async () => ({
           candidates: [{ content: { parts: [{ text: 'const fixed = true;' }] } }]
         }),
       } as Response);
-
-      const result = await ai.fixBug('const broken =', 'SyntaxError: Unexpected end');
+      const result = await ai.fixBug('const broken =', 'SyntaxError');
       expect(typeof result).toBe('string');
     });
   });
