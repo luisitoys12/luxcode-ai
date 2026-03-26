@@ -36,7 +36,7 @@ a{color:inherit;text-decoration:none}
 /* DASHBOARD */
 #dashboard{display:none}
 .app-layout{display:flex;min-height:100vh}
-.sidebar{width:240px;background:rgba(255,255,255,.03);border-right:1px solid rgba(255,255,255,.07);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.25rem;position:fixed;top:0;bottom:0}
+.sidebar{width:240px;background:rgba(255,255,255,.03);border-right:1px solid rgba(255,255,255,.07);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.25rem;position:fixed;top:0;bottom:0;overflow-y:auto}
 .sidebar-logo{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,#7c3aed,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:.5rem;margin-bottom:1rem}
 .nav-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border-radius:8px;font-size:.875rem;cursor:pointer;opacity:.7;transition:.2s}
 .nav-item:hover,.nav-item.active{background:rgba(124,58,237,.15);opacity:1;color:#a78bfa}
@@ -56,14 +56,25 @@ a{color:inherit;text-decoration:none}
 .type-selector{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
 .type-btn{padding:.4rem .9rem;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#e2e8f0;cursor:pointer;font-size:.82rem;transition:.2s}
 .type-btn:hover,.type-btn.active{background:rgba(124,58,237,.25);border-color:rgba(124,58,237,.5);color:#a78bfa}
-.gen-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:1rem;color:#e2e8f0;font-size:.9rem;min-height:100px;resize:vertical;outline:none;font-family:inherit;transition:.2s;margin-bottom:.8rem}
+.gen-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:1rem;color:#e2e8f0;font-size:.9rem;min-height:110px;resize:vertical;outline:none;font-family:inherit;transition:.2s;margin-bottom:.8rem}
 .gen-input:focus{border-color:rgba(124,58,237,.5)}
 .gen-row{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
 .provider-select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:.5rem .8rem;color:#e2e8f0;font-size:.85rem;outline:none;cursor:pointer}
-.btn-gen{padding:.6rem 1.5rem;border-radius:10px;border:none;background:linear-gradient(135deg,#7c3aed,#06b6d4);color:#fff;font-weight:600;cursor:pointer;font-size:.9rem;transition:.2s}
+.btn-gen{padding:.6rem 1.5rem;border-radius:10px;border:none;background:linear-gradient(135deg,#7c3aed,#06b6d4);color:#fff;font-weight:600;cursor:pointer;font-size:.9rem;transition:.2s;display:flex;align-items:center;gap:.4rem}
 .btn-gen:hover{opacity:.9}
-.result-area{display:none;background:#0d0d18;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:1.2rem;font-family:monospace;font-size:.82rem;color:#94a3b8;margin-top:1rem;white-space:pre-wrap;max-height:350px;overflow-y:auto}
-.result-area.show{display:block}
+.btn-gen:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.result-wrap{display:none;margin-top:1rem}
+.result-wrap.show{display:block}
+.result-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:.4rem}
+.result-label{font-size:.78rem;opacity:.5}
+.btn-copy{background:rgba(124,58,237,.2);border:1px solid rgba(124,58,237,.4);border-radius:6px;padding:.3rem .8rem;color:#a78bfa;font-size:.78rem;cursor:pointer;transition:.2s}
+.btn-copy:hover{background:rgba(124,58,237,.35)}
+.result-area{background:#0d0d18;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:1.2rem;font-family:monospace;font-size:.82rem;color:#94a3b8;white-space:pre-wrap;max-height:420px;overflow-y:auto;line-height:1.6}
+.streaming{border-color:rgba(124,58,237,.4);animation:pulse-border 1.5s infinite}
+@keyframes pulse-border{0%,100%{border-color:rgba(124,58,237,.4)}50%{border-color:rgba(6,182,212,.6)}}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:.75rem 1rem;font-size:.85rem;color:#fca5a5;margin-top:.75rem}
 
 /* PROJECTS */
 .projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem}
@@ -73,9 +84,18 @@ a{color:inherit;text-decoration:none}
 .project-name{font-weight:600;font-size:.9rem;margin-bottom:.25rem}
 .project-meta{font-size:.78rem;opacity:.5}
 
+/* HISTORY */
+.history-list{display:flex;flex-direction:column;gap:.75rem}
+.history-item{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:1rem;cursor:pointer;transition:.2s}
+.history-item:hover{border-color:rgba(124,58,237,.3)}
+.history-prompt{font-size:.9rem;font-weight:500;margin-bottom:.3rem}
+.history-meta{font-size:.75rem;opacity:.5;display:flex;gap:.75rem}
+.history-code{background:#0d0d18;border-radius:8px;padding:.75rem;font-family:monospace;font-size:.75rem;color:#64748b;margin-top:.6rem;max-height:100px;overflow:hidden;white-space:pre-wrap}
+
 /* TOAST */
-.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(124,58,237,.9);color:#fff;padding:.75rem 1.2rem;border-radius:10px;font-size:.875rem;z-index:999;opacity:0;transform:translateY(10px);transition:.3s;pointer-events:none}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(124,58,237,.95);color:#fff;padding:.75rem 1.2rem;border-radius:10px;font-size:.875rem;z-index:999;opacity:0;transform:translateY(10px);transition:.3s;pointer-events:none;max-width:320px}
 .toast.show{opacity:1;transform:translateY(0)}
+.toast.error{background:rgba(239,68,68,.95)}
 
 @media(max-width:768px){
   .sidebar{display:none}
@@ -90,13 +110,10 @@ a{color:inherit;text-decoration:none}
   <div class="auth-card">
     <div class="auth-logo">⚡ LuxCode AI</div>
     <div class="auth-sub">Genera código con IA · Gratis para siempre</div>
-
     <div class="tabs">
       <div class="tab active" onclick="switchTab('login')">Iniciar sesión</div>
       <div class="tab" onclick="switchTab('register')">Crear cuenta</div>
     </div>
-
-    <!-- LOGIN -->
     <div id="loginForm">
       <div class="form-group"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="tu@correo.com"/></div>
       <div class="form-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
@@ -108,8 +125,6 @@ a{color:inherit;text-decoration:none}
       </div>
       <p class="form-note">Al continuar aceptas los <a href="#" style="color:#a78bfa">Términos de uso</a></p>
     </div>
-
-    <!-- REGISTER -->
     <div id="registerForm" style="display:none">
       <div class="form-group"><label>Nombre</label><input type="text" id="regName" placeholder="Tu nombre"/></div>
       <div class="form-group"><label>Correo electrónico</label><input type="email" id="regEmail" placeholder="tu@correo.com"/></div>
@@ -120,7 +135,7 @@ a{color:inherit;text-decoration:none}
         <button class="oauth-btn" onclick="oauthLogin('github')">🐙 GitHub</button>
         <button class="oauth-btn" onclick="oauthLogin('google')">🔵 Google</button>
       </div>
-      <p class="form-note">Plan Free incluye 50 generaciones/mes sin tarjeta</p>
+      <p class="form-note">Plan Free · 50 generaciones/mes · Sin tarjeta</p>
     </div>
   </div>
 </div>
@@ -128,7 +143,6 @@ a{color:inherit;text-decoration:none}
 <!-- DASHBOARD -->
 <div id="dashboard">
   <div class="app-layout">
-    <!-- SIDEBAR -->
     <div class="sidebar">
       <div class="sidebar-logo">⚡ LuxCode AI</div>
       <div class="nav-item active" onclick="showView('generate')">⚡ Generar</div>
@@ -139,27 +153,23 @@ a{color:inherit;text-decoration:none}
       <div class="nav-item" onclick="showView('upgrade')">✨ Upgrade a Pro</div>
       <div class="nav-item" onclick="doLogout()">🚪 Cerrar sesión</div>
     </div>
-
-    <!-- MAIN -->
     <div class="main-area">
       <div class="topbar">
         <h1 id="viewTitle">⚡ Generar código</h1>
         <div class="user-badge">
           <div class="avatar" id="userAvatar">L</div>
           <span id="userName">Usuario</span>
-          <span style="opacity:.4;font-size:.75rem">Free</span>
+          <span id="userPlanBadge" style="opacity:.4;font-size:.75rem">Free</span>
         </div>
       </div>
-
-      <!-- STATS -->
       <div class="stats-row">
-        <div class="stat-card"><div class="stat-card-num" id="statGen">0</div><div class="stat-card-label">Generaciones hoy</div></div>
-        <div class="stat-card"><div class="stat-card-num" id="statProj">0</div><div class="stat-card-label">Proyectos</div></div>
-        <div class="stat-card"><div class="stat-card-num">50</div><div class="stat-card-label">Límite mensual (Free)</div></div>
+        <div class="stat-card"><div class="stat-card-num" id="statGen">0</div><div class="stat-card-label">Generaciones totales</div></div>
+        <div class="stat-card"><div class="stat-card-num" id="statProj">0</div><div class="stat-card-label">Proyectos guardados</div></div>
+        <div class="stat-card"><div class="stat-card-num" id="statLimit">50</div><div class="stat-card-label">Límite mensual</div></div>
         <div class="stat-card"><div class="stat-card-num">6</div><div class="stat-card-label">Proveedores IA</div></div>
       </div>
 
-      <!-- VIEW: GENERATE -->
+      <!-- GENERATE -->
       <div id="viewGenerate">
         <div class="generator">
           <div class="gen-title">¿Qué quieres generar?</div>
@@ -173,52 +183,73 @@ a{color:inherit;text-decoration:none}
           <textarea class="gen-input" id="genPrompt" placeholder="Describe lo que quieres crear... ej: Landing page para una cafetería con menú, galería de fotos y formulario de contacto"></textarea>
           <div class="gen-row">
             <select class="provider-select" id="providerSelect">
-              <option value="gemini">⚡ Gemini Flash (gratis)</option>
-              <option value="groq">🚀 Groq Llama (gratis)</option>
-              <option value="ollama">🦙 Ollama (local)</option>
+              <option value="gemini">⚡ Gemini 2.0 Flash (gratis)</option>
+              <option value="groq">🚀 Groq Llama 3.3 (gratis)</option>
+              <option value="openrouter">🌐 OpenRouter (gratis/pro)</option>
               <option value="openai">🔵 GPT-4o (Pro)</option>
-              <option value="openrouter">🌐 OpenRouter</option>
             </select>
-            <button class="btn-gen" onclick="generate()">⚡ Generar</button>
+            <button class="btn-gen" id="btnGen" onclick="generate()">⚡ Generar</button>
           </div>
-          <div class="result-area" id="resultArea"></div>
+          <div id="errorMsg" class="error-msg" style="display:none"></div>
+          <div class="result-wrap" id="resultWrap">
+            <div class="result-toolbar">
+              <span class="result-label" id="resultLabel">Resultado</span>
+              <button class="btn-copy" onclick="copyResult()">📋 Copiar</button>
+            </div>
+            <div class="result-area" id="resultArea"></div>
+          </div>
         </div>
       </div>
 
-      <!-- VIEW: PROJECTS -->
+      <!-- PROJECTS -->
       <div id="viewProjects" style="display:none">
         <div class="projects-grid" id="projectsGrid"></div>
       </div>
 
-      <!-- VIEW: HISTORY -->
+      <!-- HISTORY -->
       <div id="viewHistory" style="display:none">
-        <div style="opacity:.6;text-align:center;padding:3rem">📜 Tu historial aparecerá aquí después de tu primera generación</div>
+        <div class="history-list" id="historyList"></div>
       </div>
 
-      <!-- VIEW: SETTINGS -->
+      <!-- SETTINGS -->
       <div id="viewSettings" style="display:none">
-        <div style="max-width:500px">
+        <div style="max-width:520px">
           <div class="generator">
-            <div class="gen-title">🔑 API Keys</div>
-            <div class="form-group"><label>Gemini API Key <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#7c3aed;font-size:.75rem">(obtener gratis)</a></label><input type="password" id="geminiKey" placeholder="AIza..."/></div>
-            <div class="form-group"><label>Groq API Key <a href="https://console.groq.com" target="_blank" style="color:#7c3aed;font-size:.75rem">(obtener gratis)</a></label><input type="password" id="groqKey" placeholder="gsk_..."/></div>
-            <div class="form-group"><label>OpenAI API Key</label><input type="password" id="openaiKey" placeholder="sk-..."/></div>
-            <div class="form-group"><label>OpenRouter API Key</label><input type="password" id="openrouterKey" placeholder="sk-or-..."/></div>
-            <button class="btn-full" onclick="saveKeys()">💾 Guardar API Keys</button>
+            <div class="gen-title">🔑 API Keys — se guardan solo en tu navegador</div>
+            <div class="form-group">
+              <label>Gemini API Key <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#7c3aed;font-size:.75rem">→ obtener gratis</a></label>
+              <input type="password" id="geminiKey" placeholder="AIzaSy..."/>
+            </div>
+            <div class="form-group">
+              <label>Groq API Key <a href="https://console.groq.com/keys" target="_blank" style="color:#7c3aed;font-size:.75rem">→ obtener gratis</a></label>
+              <input type="password" id="groqKey" placeholder="gsk_..."/>
+            </div>
+            <div class="form-group">
+              <label>OpenRouter API Key <a href="https://openrouter.ai/keys" target="_blank" style="color:#7c3aed;font-size:.75rem">→ obtener gratis</a></label>
+              <input type="password" id="openrouterKey" placeholder="sk-or-..."/>
+            </div>
+            <div class="form-group">
+              <label>OpenAI API Key</label>
+              <input type="password" id="openaiKey" placeholder="sk-..."/>
+            </div>
+            <button class="btn-full" onclick="saveKeys()">💾 Guardar</button>
+          </div>
+          <div class="generator" style="margin-top:1rem">
+            <div class="gen-title">⚠️ Zona peligrosa</div>
+            <button onclick="clearAllData()" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#fca5a5;padding:.6rem 1.2rem;border-radius:8px;cursor:pointer;font-size:.85rem">🗑️ Borrar todos mis datos</button>
           </div>
         </div>
       </div>
 
-      <!-- VIEW: UPGRADE -->
+      <!-- UPGRADE -->
       <div id="viewUpgrade" style="display:none">
         <div style="max-width:400px;margin:0 auto;text-align:center;padding:2rem">
           <div style="font-size:3rem;margin-bottom:1rem">✨</div>
-          <h2 style="margin-bottom:1rem">Upgrade a Pro</h2>
-          <p style="opacity:.6;margin-bottom:2rem">Generaciones ilimitadas, GPT-4o, Claude 3.5, proyectos ilimitados y más.</p>
-          <a href="https://github.com/luisitoys12/luxcode-ai/issues/new?title=Pro+Plan+Request" class="btn-full" style="display:block">Contactar para Pro → $9/mes</a>
+          <h2 style="margin-bottom:1rem">Upgrade a Pro — $9/mes</h2>
+          <p style="opacity:.6;margin-bottom:2rem">Generaciones ilimitadas, GPT-4o, Claude 3.5, proyectos ilimitados y soporte prioritario.</p>
+          <a href="https://github.com/luisitoys12/luxcode-ai/issues/new?title=Pro+Plan+Request&body=Quiero+el+plan+Pro" class="btn-full" style="display:block">Solicitar Plan Pro →</a>
         </div>
       </div>
-
     </div>
   </div>
 </div>
@@ -226,183 +257,398 @@ a{color:inherit;text-decoration:none}
 <div class="toast" id="toast"></div>
 
 <script>
-// ── STORAGE (localStorage — gratis, sin backend por ahora) ──────────────
+// ── DB (localStorage) ──────────────────────────────────────────────────
 const DB = {
-  get: k => JSON.parse(localStorage.getItem('lux_'+k) || 'null'),
+  get: k => { try{ return JSON.parse(localStorage.getItem('lux_'+k)||'null'); }catch{return null;} },
   set: (k,v) => localStorage.setItem('lux_'+k, JSON.stringify(v)),
   del: k => localStorage.removeItem('lux_'+k)
 };
 
 // ── TOAST ──────────────────────────────────────────────────────────────
-function toast(msg, ms=2800){
+function toast(msg, type='ok', ms=3000){
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'), ms);
+  t.className = 'toast show' + (type==='error'?' error':'');
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.classList.remove('show'), ms);
 }
 
-// ── AUTH STATE ─────────────────────────────────────────────────────────
+// ── AUTH ───────────────────────────────────────────────────────────────
 let currentUser = DB.get('user');
 if(currentUser) showDashboard();
-
-// Check hash para ir directo a register
-if(location.hash === '#register') switchTab('register');
+if(location.hash==='#register') switchTab('register');
 
 function switchTab(tab){
   document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
   document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(tab==='login'&&i===0)||(tab==='register'&&i===1)));
 }
-
 function doLogin(){
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass  = document.getElementById('loginPass').value;
-  if(!email||!pass){ toast('⚠️ Completa todos los campos'); return; }
-  // Buscar en usuarios registrados
-  const users = DB.get('users') || [];
-  const user  = users.find(u=>u.email===email && u.pass===btoa(pass));
-  if(!user){ toast('❌ Correo o contraseña incorrectos'); return; }
-  DB.set('user', user);
-  currentUser = user;
-  showDashboard();
-  toast('👋 Bienvenido, '+user.name+'!');
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!email||!pass){toast('⚠️ Completa todos los campos','error');return;}
+  const users=DB.get('users')||[];
+  const user=users.find(u=>u.email===email&&u.pass===btoa(unescape(encodeURIComponent(pass))));
+  if(!user){toast('❌ Correo o contraseña incorrectos','error');return;}
+  DB.set('user',user); currentUser=user; showDashboard(); toast('👋 Bienvenido, '+user.name+'!');
 }
-
 function doRegister(){
-  const name  = document.getElementById('regName').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const pass  = document.getElementById('regPass').value;
-  if(!name||!email||!pass){ toast('⚠️ Completa todos los campos'); return; }
-  if(pass.length < 8){ toast('⚠️ La contraseña debe tener al menos 8 caracteres'); return; }
-  const users = DB.get('users') || [];
-  if(users.find(u=>u.email===email)){ toast('⚠️ Ya existe una cuenta con ese correo'); return; }
-  const user = { id: Date.now(), name, email, pass: btoa(pass), plan:'free', created: new Date().toISOString(), gens:0, projects:[] };
-  users.push(user);
-  DB.set('users', users);
-  DB.set('user', user);
-  currentUser = user;
-  showDashboard();
-  toast('🎉 Cuenta creada. Bienvenido, '+name+'!');
+  const name=document.getElementById('regName').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const pass=document.getElementById('regPass').value;
+  if(!name||!email||!pass){toast('⚠️ Completa todos los campos','error');return;}
+  if(pass.length<8){toast('⚠️ Contraseña mínimo 8 caracteres','error');return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast('⚠️ Correo inválido','error');return;}
+  const users=DB.get('users')||[];
+  if(users.find(u=>u.email===email)){toast('⚠️ Ya existe una cuenta con ese correo','error');return;}
+  const user={id:Date.now(),name,email,pass:btoa(unescape(encodeURIComponent(pass))),plan:'free',created:new Date().toISOString(),gens:0,projects:[],history:[]};
+  users.push(user); DB.set('users',users); DB.set('user',user); currentUser=user;
+  showDashboard(); toast('🎉 ¡Bienvenido, '+name+'! Tu cuenta fue creada.');
 }
-
 function oauthLogin(provider){
-  // Demo — en producción conectar con PocketBase OAuth
-  const user = { id: Date.now(), name: provider==='github'?'Dev GitHub':'Dev Google', email: provider+'@demo.com', plan:'free', gens:0, projects:[], created: new Date().toISOString() };
-  DB.set('user', user);
-  currentUser = user;
-  showDashboard();
-  toast('✅ Conectado con '+(provider==='github'?'GitHub':'Google'));
+  const user={id:Date.now(),name:provider==='github'?'Dev GitHub':'Dev Google',email:provider+'@demo.com',plan:'free',gens:0,projects:[],history:[],created:new Date().toISOString()};
+  DB.set('user',user); currentUser=user; showDashboard(); toast('✅ Conectado con '+(provider==='github'?'GitHub':'Google'));
 }
-
 function doLogout(){
-  DB.del('user');
-  currentUser = null;
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('authScreen').style.display = 'flex';
+  DB.del('user'); currentUser=null;
+  document.getElementById('dashboard').style.display='none';
+  document.getElementById('authScreen').style.display='flex';
   toast('👋 Sesión cerrada');
 }
-
 function showDashboard(){
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  document.getElementById('userName').textContent = currentUser.name;
-  document.getElementById('userAvatar').textContent = currentUser.name[0].toUpperCase();
-  document.getElementById('statGen').textContent = currentUser.gens || 0;
-  document.getElementById('statProj').textContent = (currentUser.projects||[]).length;
-  renderProjects();
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  document.getElementById('userName').textContent=currentUser.name;
+  document.getElementById('userAvatar').textContent=currentUser.name[0].toUpperCase();
+  document.getElementById('userPlanBadge').textContent=currentUser.plan==='pro'?'Pro ✨':'Free';
+  document.getElementById('statGen').textContent=currentUser.gens||0;
+  document.getElementById('statProj').textContent=(currentUser.projects||[]).length;
+  document.getElementById('statLimit').textContent=currentUser.plan==='pro'?'∞':'50';
+  renderProjects(); renderHistory();
+  loadSavedKeys();
 }
 
 // ── VIEWS ──────────────────────────────────────────────────────────────
-const views = { generate:'⚡ Generar código', projects:'📁 Proyectos', history:'📜 Historial', settings:'⚙️ Configuración', upgrade:'✨ Upgrade a Pro' };
+const VIEWS={generate:'⚡ Generar código',projects:'📁 Proyectos',history:'📜 Historial',settings:'⚙️ Configuración',upgrade:'✨ Upgrade a Pro'};
 function showView(v){
-  Object.keys(views).forEach(k=>{
-    document.getElementById('view'+k.charAt(0).toUpperCase()+k.slice(1)).style.display = k===v?'block':'none';
+  Object.keys(VIEWS).forEach(k=>{
+    const el=document.getElementById('view'+k.charAt(0).toUpperCase()+k.slice(1));
+    if(el) el.style.display=k===v?'block':'none';
   });
-  document.getElementById('viewTitle').textContent = views[v];
+  document.getElementById('viewTitle').textContent=VIEWS[v];
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
 }
 
-// ── GENERATOR ──────────────────────────────────────────────────────────
-let currentType = 'web';
-function setType(btn, type){
+// ── GENERATOR ─────────────────────────────────────────────────────────
+let currentType='web';
+function setType(btn,type){
   document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  currentType = type;
+  btn.classList.add('active'); currentType=type;
 }
 
-const EXAMPLES = {
-  web: '<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="UTF-8"/>\n<title>Mi App Web</title>\n<style>body{font-family:system-ui;background:#0a0a0f;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2rem;max-width:400px;text-align:center}h1{background:linear-gradient(135deg,#7c3aed,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:2rem}p{opacity:.7;margin-top:.5rem}</style>\n</head>\n<body><div class="card"><h1>⚡ Mi App</h1><p>Generado con LuxCode AI</p></div></body>\n</html>',
-  mobile: '// App.tsx — React Native\nimport React from \'react\';\nimport { View, Text, StyleSheet, TouchableOpacity } from \'react-native\';\n\nexport default function App() {\n  return (\n    <View style={styles.container}>\n      <Text style={styles.title}>⚡ Mi App Móvil</Text>\n      <TouchableOpacity style={styles.btn}>\n        <Text style={styles.btnText}>Generado con LuxCode AI</Text>\n      </TouchableOpacity>\n    </View>\n  );\n}\nconst styles = StyleSheet.create({\n  container:{ flex:1, backgroundColor:\'#0a0a0f\', alignItems:\'center\', justifyContent:\'center\' },\n  title:{ fontSize:28, fontWeight:\'800\', color:\'#a78bfa\', marginBottom:20 },\n  btn:{ backgroundColor:\'#7c3aed\', paddingHorizontal:24, paddingVertical:12, borderRadius:12 },\n  btnText:{ color:\'#fff\', fontWeight:\'600\' }\n});',
-  api: '// server.js — Express API\nconst express = require(\'express\');\nconst app = express();\napp.use(express.json());\n\n// GET /api/items\napp.get(\'/api/items\', (req, res) => {\n  res.json({ items: [], total: 0, page: 1 });\n});\n\n// POST /api/items\napp.post(\'/api/items\', (req, res) => {\n  const { name, description } = req.body;\n  res.status(201).json({ id: Date.now(), name, description, created: new Date() });\n});\n\napp.listen(3000, () => console.log(\'⚡ API corriendo en http://localhost:3000\'));',
-  desktop: '// main.ts — Tauri App\nconst { invoke } = window.__TAURI__.tauri;\n\nasync function init() {\n  document.querySelector(\'#app\').innerHTML = `\n    <h1>⚡ Mi App Escritorio</h1>\n    <p>Generado con LuxCode AI + Tauri</p>\n    <button onclick="greet()">Saludar</button>\n  `;\n}\n\nasync function greet() {\n  const msg = await invoke(\'greet\', { name: \'Mundo\' });\n  alert(msg);\n}\n\nwindow.addEventListener(\'DOMContentLoaded\', init);',
-  agent: '// 🤖 Modo Agente — Plan de ejecución\n// Tarea: "Crear app de gestión de tareas"\n\n// Paso 1: Análisis de requerimientos\nconst plan = {\n  steps: [\n    \'1. Crear estructura de carpetas del proyecto\',\n    \'2. Generar base de datos SQLite con esquema de tareas\',\n    \'3. Crear API REST con Express (CRUD completo)\',\n    \'4. Generar frontend React con lista de tareas\',\n    \'5. Conectar frontend con API\',\n    \'6. Agregar autenticación JWT\'\n  ],\n  estimatedTime: \'45 segundos\',\n  provider: \'Gemini Flash\'\n};\n\nconsole.log(\'⚡ Ejecutando plan...\', plan);'
+const TYPE_PROMPTS={
+  web:'Genera código HTML, CSS y JavaScript completo y funcional. Devuelve SOLO el código, sin explicaciones. El código debe ser moderno, responsivo y visualmente atractivo con colores oscuros y gradientes.',
+  mobile:'Genera código React Native completo con StyleSheet. Devuelve SOLO el código TypeScript/JSX, sin explicaciones. Incluye componentes funcionales modernos.',
+  desktop:'Genera código para una app de escritorio con Tauri (HTML/CSS/JS) o Electron. Devuelve SOLO el código completo y funcional, sin explicaciones.',
+  api:'Genera una API REST completa con Node.js y Express. Incluye rutas CRUD, middleware, validación y comentarios de uso. Devuelve SOLO el código JavaScript.',
+  agent:'Eres un agente de desarrollo. Crea un plan detallado paso a paso y genera el código principal para la tarea solicitada. Sé específico y técnico.'
 };
 
-function generate(){
-  const prompt = document.getElementById('genPrompt').value.trim();
-  if(!prompt){ toast('⚠️ Escribe una descripción primero'); return; }
-  // Verificar si tiene API key configurada
-  const provider = document.getElementById('providerSelect').value;
-  const keyMap = { gemini:'geminiKey', groq:'groqKey', openai:'openaiKey', openrouter:'openrouterKey' };
-  const savedKeys = DB.get('apikeys') || {};
-  if(provider !== 'ollama' && !savedKeys[keyMap[provider]]){
-    toast('⚙️ Configura tu API Key en Ajustes primero');
-    showView('settings');
-    return;
+// ── GEMINI API (real) ──────────────────────────────────────────────────
+async function callGemini(apiKey, prompt, onChunk){
+  const url=`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?key=${apiKey}&alt=sse`;
+  const body={contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:0.7,maxOutputTokens:8192}};
+  const res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!res.ok){
+    const err=await res.json().catch(()=>({}));
+    throw new Error(err?.error?.message||`Gemini error ${res.status}`);
   }
-  const result = document.getElementById('resultArea');
-  result.textContent = '// ⏳ Generando con '+ provider +'...\n// Prompt: "' + prompt + '"\n\n' + (EXAMPLES[currentType] || '// Código generado aparecerá aquí');
-  result.classList.add('show');
-  // Actualizar stats
-  currentUser.gens = (currentUser.gens||0)+1;
-  const proj = { id: Date.now(), type: currentType, prompt: prompt.slice(0,50), created: new Date().toISOString() };
-  currentUser.projects = [proj, ...(currentUser.projects||[])].slice(0,20);
-  const users = DB.get('users')||[];
-  const idx = users.findIndex(u=>u.id===currentUser.id);
-  if(idx>-1){ users[idx]=currentUser; DB.set('users',users); }
-  DB.set('user', currentUser);
-  document.getElementById('statGen').textContent = currentUser.gens;
-  document.getElementById('statProj').textContent = currentUser.projects.length;
-  toast('✅ ¡Código generado!');
-  renderProjects();
+  const reader=res.body.getReader();
+  const dec=new TextDecoder();
+  let buf='';
+  while(true){
+    const {done,value}=await reader.read();
+    if(done) break;
+    buf+=dec.decode(value,{stream:true});
+    const lines=buf.split('\n');
+    buf=lines.pop();
+    for(const line of lines){
+      if(!line.startsWith('data:')) continue;
+      const data=line.slice(5).trim();
+      if(data==='[DONE]') continue;
+      try{
+        const j=JSON.parse(data);
+        const text=j?.candidates?.[0]?.content?.parts?.[0]?.text||'';
+        if(text) onChunk(text);
+      }catch{}
+    }
+  }
 }
 
-// ── PROJECTS ───────────────────────────────────────────────────────────
-const TYPE_ICONS = { web:'🌐', mobile:'📱', desktop:'🖥️', api:'🔌', agent:'🤖' };
+// ── GROQ API (real) ────────────────────────────────────────────────────
+async function callGroq(apiKey, prompt, onChunk){
+  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+    body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],stream:true,max_tokens:8192,temperature:0.7})
+  });
+  if(!res.ok){
+    const err=await res.json().catch(()=>({}));
+    throw new Error(err?.error?.message||`Groq error ${res.status}`);
+  }
+  const reader=res.body.getReader();
+  const dec=new TextDecoder();
+  let buf='';
+  while(true){
+    const {done,value}=await reader.read();
+    if(done) break;
+    buf+=dec.decode(value,{stream:true});
+    const lines=buf.split('\n');
+    buf=lines.pop();
+    for(const line of lines){
+      if(!line.startsWith('data:')) continue;
+      const data=line.slice(5).trim();
+      if(data==='[DONE]') continue;
+      try{
+        const j=JSON.parse(data);
+        const text=j?.choices?.[0]?.delta?.content||'';
+        if(text) onChunk(text);
+      }catch{}
+    }
+  }
+}
+
+// ── OPENROUTER API (real) ──────────────────────────────────────────────
+async function callOpenRouter(apiKey, prompt, onChunk){
+  const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey,'HTTP-Referer':'https://luisitoys12.github.io/luxcode-ai','X-Title':'LuxCode AI'},
+    body:JSON.stringify({model:'meta-llama/llama-3.3-70b-instruct:free',messages:[{role:'user',content:prompt}],stream:true,max_tokens:8192})
+  });
+  if(!res.ok){
+    const err=await res.json().catch(()=>({}));
+    throw new Error(err?.error?.message||`OpenRouter error ${res.status}`);
+  }
+  const reader=res.body.getReader();
+  const dec=new TextDecoder();
+  let buf='';
+  while(true){
+    const {done,value}=await reader.read();
+    if(done) break;
+    buf+=dec.decode(value,{stream:true});
+    const lines=buf.split('\n');
+    buf=lines.pop();
+    for(const line of lines){
+      if(!line.startsWith('data:')) continue;
+      const data=line.slice(5).trim();
+      if(data==='[DONE]') continue;
+      try{
+        const j=JSON.parse(data);
+        const text=j?.choices?.[0]?.delta?.content||'';
+        if(text) onChunk(text);
+      }catch{}
+    }
+  }
+}
+
+// ── OPENAI API (real) ──────────────────────────────────────────────────
+async function callOpenAI(apiKey, prompt, onChunk){
+  const res=await fetch('https://api.openai.com/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},
+    body:JSON.stringify({model:'gpt-4o',messages:[{role:'user',content:prompt}],stream:true,max_tokens:8192})
+  });
+  if(!res.ok){
+    const err=await res.json().catch(()=>({}));
+    throw new Error(err?.error?.message||`OpenAI error ${res.status}`);
+  }
+  const reader=res.body.getReader();
+  const dec=new TextDecoder();
+  let buf='';
+  while(true){
+    const {done,value}=await reader.read();
+    if(done) break;
+    buf+=dec.decode(value,{stream:true});
+    const lines=buf.split('\n');
+    buf=lines.pop();
+    for(const line of lines){
+      if(!line.startsWith('data:')) continue;
+      const data=line.slice(5).trim();
+      if(data==='[DONE]') continue;
+      try{
+        const j=JSON.parse(data);
+        const text=j?.choices?.[0]?.delta?.content||'';
+        if(text) onChunk(text);
+      }catch{}
+    }
+  }
+}
+
+// ── GENERATE MAIN ──────────────────────────────────────────────────────
+let generating=false;
+async function generate(){
+  if(generating) return;
+  const prompt=document.getElementById('genPrompt').value.trim();
+  if(!prompt){toast('⚠️ Escribe una descripción primero','error');return;}
+  const provider=document.getElementById('providerSelect').value;
+  const savedKeys=DB.get('apikeys')||{};
+  const keyMap={gemini:'geminiKey',groq:'groqKey',openrouter:'openrouterKey',openai:'openaiKey'};
+  const apiKey=savedKeys[keyMap[provider]];
+  if(!apiKey){
+    toast('🔑 Primero guarda tu API Key en Configuración','error',4000);
+    showView('settings'); return;
+  }
+
+  // Verificar límite free
+  if(currentUser.plan==='free' && (currentUser.gens||0)>=50){
+    toast('⚠️ Alcanzaste el límite de 50 generaciones. Upgrade a Pro.','error',5000);
+    showView('upgrade'); return;
+  }
+
+  generating=true;
+  const btn=document.getElementById('btnGen');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> Generando...';
+  document.getElementById('errorMsg').style.display='none';
+
+  const resultWrap=document.getElementById('resultWrap');
+  const resultArea=document.getElementById('resultArea');
+  const resultLabel=document.getElementById('resultLabel');
+  resultWrap.classList.add('show');
+  resultArea.textContent='';
+  resultArea.classList.add('streaming');
+  resultLabel.textContent=`Generando con ${provider}...`;
+
+  const fullPrompt=TYPE_PROMPTS[currentType]+'\n\nTarea: '+prompt;
+  let fullText='';
+
+  const onChunk=chunk=>{
+    fullText+=chunk;
+    resultArea.textContent=fullText;
+    resultArea.scrollTop=resultArea.scrollHeight;
+  };
+
+  try{
+    if(provider==='gemini')      await callGemini(apiKey,fullPrompt,onChunk);
+    else if(provider==='groq')   await callGroq(apiKey,fullPrompt,onChunk);
+    else if(provider==='openrouter') await callOpenRouter(apiKey,fullPrompt,onChunk);
+    else if(provider==='openai') await callOpenAI(apiKey,fullPrompt,onChunk);
+
+    // Guardar en historial y proyectos
+    const TYPE_ICONS={web:'🌐',mobile:'📱',desktop:'🖥️',api:'🔌',agent:'🤖'};
+    const entry={id:Date.now(),type:currentType,prompt:prompt.slice(0,80),code:fullText,provider,created:new Date().toISOString()};
+    currentUser.gens=(currentUser.gens||0)+1;
+    currentUser.history=[entry,...(currentUser.history||[])].slice(0,50);
+    currentUser.projects=[{id:entry.id,type:currentType,prompt:entry.prompt,created:entry.created},...(currentUser.projects||[])].slice(0,20);
+    saveCurrentUser();
+    document.getElementById('statGen').textContent=currentUser.gens;
+    document.getElementById('statProj').textContent=currentUser.projects.length;
+    resultLabel.textContent=`✅ Listo · ${provider} · ${fullText.length} chars`;
+    resultArea.classList.remove('streaming');
+    toast('✅ ¡Código generado! Usa el botón Copiar.');
+    renderProjects(); renderHistory();
+  }catch(e){
+    resultArea.classList.remove('streaming');
+    resultWrap.classList.remove('show');
+    const errEl=document.getElementById('errorMsg');
+    errEl.style.display='block';
+    errEl.textContent='❌ Error: '+e.message+' — Verifica que tu API Key sea correcta en ⚙️ Configuración.';
+    toast('❌ '+e.message,'error',5000);
+  }finally{
+    generating=false;
+    btn.disabled=false;
+    btn.innerHTML='⚡ Generar';
+  }
+}
+
+// ── COPY ───────────────────────────────────────────────────────────────
+function copyResult(){
+  const text=document.getElementById('resultArea').textContent;
+  navigator.clipboard.writeText(text).then(()=>toast('📋 ¡Copiado al portapapeles!')).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('📋 ¡Copiado!');
+  });
+}
+
+// ── PROJECTS & HISTORY ─────────────────────────────────────────────────
+const TYPE_ICONS={web:'🌐',mobile:'📱',desktop:'🖥️',api:'🔌',agent:'🤖'};
 function renderProjects(){
-  const grid = document.getElementById('projectsGrid');
-  const projs = currentUser.projects || [];
+  const grid=document.getElementById('projectsGrid');
+  const projs=currentUser.projects||[];
   if(!projs.length){
-    grid.innerHTML = '<div style="opacity:.5;padding:2rem;grid-column:1/-1">No tienes proyectos aún. ¡Genera tu primero! ⚡</div>';
+    grid.innerHTML='<div style="opacity:.5;padding:2rem;grid-column:1/-1;text-align:center">No tienes proyectos aún. ¡Genera el primero! ⚡</div>';
     return;
   }
-  grid.innerHTML = projs.map(p=>`
-    <div class="project-card">
+  grid.innerHTML=projs.map(p=>`
+    <div class="project-card" onclick="loadProjectFromHistory(${p.id})">
       <div class="project-icon">${TYPE_ICONS[p.type]||'📄'}</div>
-      <div class="project-name">${p.prompt||'Proyecto'}...</div>
+      <div class="project-name">${escHtml(p.prompt||'Proyecto')}...</div>
       <div class="project-meta">${p.type} · ${new Date(p.created).toLocaleDateString('es-MX')}</div>
     </div>
   `).join('');
 }
+function renderHistory(){
+  const list=document.getElementById('historyList');
+  const hist=currentUser.history||[];
+  if(!hist.length){
+    list.innerHTML='<div style="opacity:.5;text-align:center;padding:3rem">📜 Tu historial aparecerá aquí después de tu primera generación</div>';
+    return;
+  }
+  list.innerHTML=hist.map(h=>`
+    <div class="history-item" onclick="loadHistory(${h.id})">
+      <div class="history-prompt">${TYPE_ICONS[h.type]||'📄'} ${escHtml(h.prompt||'Generación')}...</div>
+      <div class="history-meta"><span>${h.type}</span><span>${h.provider}</span><span>${new Date(h.created).toLocaleString('es-MX')}</span></div>
+      <div class="history-code">${escHtml((h.code||'').slice(0,200))}</div>
+    </div>
+  `).join('');
+}
+function loadHistory(id){
+  const entry=(currentUser.history||[]).find(h=>h.id===id);
+  if(!entry) return;
+  document.getElementById('resultArea').textContent=entry.code||'';
+  document.getElementById('resultWrap').classList.add('show');
+  document.getElementById('resultLabel').textContent=`📜 ${entry.type} · ${entry.provider}`;
+  showView('generate');
+  toast('📜 Historial cargado');
+}
+function loadProjectFromHistory(id){
+  loadHistory(id);
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 // ── SETTINGS ───────────────────────────────────────────────────────────
 function saveKeys(){
-  const keys = {
-    geminiKey: document.getElementById('geminiKey').value,
-    groqKey:   document.getElementById('groqKey').value,
-    openaiKey: document.getElementById('openaiKey').value,
-    openrouterKey: document.getElementById('openrouterKey').value
+  const keys={
+    geminiKey: document.getElementById('geminiKey').value.trim(),
+    groqKey:   document.getElementById('groqKey').value.trim(),
+    openaiKey: document.getElementById('openaiKey').value.trim(),
+    openrouterKey: document.getElementById('openrouterKey').value.trim()
   };
-  DB.set('apikeys', keys);
-  toast('🔑 API Keys guardadas de forma segura');
+  DB.set('apikeys',keys);
+  toast('🔑 API Keys guardadas localmente (solo en tu navegador)');
+}
+function loadSavedKeys(){
+  const keys=DB.get('apikeys')||{};
+  ['geminiKey','groqKey','openaiKey','openrouterKey'].forEach(k=>{
+    const el=document.getElementById(k);
+    if(el&&keys[k]) el.value=keys[k];
+  });
+}
+function clearAllData(){
+  if(!confirm('¿Seguro? Se borrarán tu cuenta, historial y API Keys guardados en este navegador.')) return;
+  ['user','users','apikeys'].forEach(k=>DB.del(k));
+  location.reload();
 }
 
-// Cargar keys guardadas
-const savedKeys = DB.get('apikeys') || {};
-if(savedKeys.geminiKey) document.getElementById('geminiKey').value = savedKeys.geminiKey;
-if(savedKeys.groqKey)   document.getElementById('groqKey').value   = savedKeys.groqKey;
-if(savedKeys.openaiKey) document.getElementById('openaiKey').value = savedKeys.openaiKey;
-if(savedKeys.openrouterKey) document.getElementById('openrouterKey').value = savedKeys.openrouterKey;
+// ── SAVE USER ──────────────────────────────────────────────────────────
+function saveCurrentUser(){
+  DB.set('user',currentUser);
+  const users=DB.get('users')||[];
+  const idx=users.findIndex(u=>u.id===currentUser.id);
+  if(idx>-1){ users[idx]=currentUser; DB.set('users',users); }
+}
 </script>
 </body>
 </html>
