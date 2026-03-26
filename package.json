@@ -1,0 +1,105 @@
+{
+  "name": "luxcode-ai",
+  "displayName": "LuxCode AI",
+  "description": "Crea páginas web completas con IA (Gemini + OpenAI) directamente desde VS Code",
+  "version": "0.1.0",
+  "publisher": "luisitoys12",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Other"
+  ],
+  "keywords": ["ai", "web", "html", "gemini", "openai", "codex", "generator"],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "icon": "media/icon.png",
+  "contributes": {
+    "commands": [
+      {
+        "command": "luxcode.openPanel",
+        "title": "LuxCode AI: Abrir Panel"
+      },
+      {
+        "command": "luxcode.generatePage",
+        "title": "LuxCode AI: Generar Página Web"
+      },
+      {
+        "command": "luxcode.editWithAI",
+        "title": "LuxCode AI: Editar con IA"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "luxcode.editWithAI",
+          "when": "editorHasSelection",
+          "group": "luxcode"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "LuxCode AI",
+      "properties": {
+        "luxcode.apiProvider": {
+          "type": "string",
+          "enum": ["gemini", "openai"],
+          "default": "gemini",
+          "description": "Proveedor de IA a usar (Gemini o OpenAI)"
+        },
+        "luxcode.geminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Tu API Key de Google Gemini"
+        },
+        "luxcode.openaiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Tu API Key de OpenAI"
+        },
+        "luxcode.defaultLanguage": {
+          "type": "string",
+          "enum": ["es", "en"],
+          "default": "es",
+          "description": "Idioma de la interfaz"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "luxcode-sidebar",
+          "title": "LuxCode AI",
+          "icon": "media/sidebar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "luxcode-sidebar": [
+        {
+          "type": "webview",
+          "id": "luxcode.mainView",
+          "name": "LuxCode AI"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "lint": "eslint src",
+    "test": "vscode-test",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0",
+    "eslint": "^8.56.0"
+  }
+}
