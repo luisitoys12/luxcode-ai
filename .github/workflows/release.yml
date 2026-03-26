@@ -7,9 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versión a publicar (ej: v0.3.0)'
+        description: 'Versión a publicar (ej: v0.4.0)'
         required: true
-        default: 'v0.3.0'
+        default: 'v0.4.0'
       prerelease:
         description: '¿Es pre-release / beta?'
         required: false
@@ -20,8 +20,26 @@ on:
           - 'true'
 
 jobs:
-  build-and-release:
+  # ── JOB 1: Tests Gate ─────────────────────────────────────────────────────
+  test-gate:
+    name: 🧪 Test Gate (bloquea release si fallan)
     runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: 🧪 Tests deben pasar para continuar
+        run: npm test   # [FIX RL-01] Tests bloquean el release
+      - run: npm run test:coverage
+
+  # ── JOB 2: Build & Release ────────────────────────────────────────────────
+  build-and-release:
+    name: 📦 Build & GitHub Release
+    runs-on: ubuntu-latest
+    needs: test-gate   # [FIX RL-01] Solo si tests pasan
     permissions:
       contents: write
 
@@ -36,16 +54,13 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Compile TypeScript
         run: npm run compile
 
-      - name: Install vsce
-        run: npm install -g @vscode/vsce
-
       - name: Package extension (.vsix)
-        run: vsce package --no-dependencies
+        run: npx @vscode/vsce package --no-dependencies
 
       - name: Get version
         id: version
@@ -70,10 +85,21 @@ jobs:
           git tag ${{ github.event.inputs.version }} || echo "Tag already exists"
           git push origin ${{ github.event.inputs.version }} || echo "Tag already pushed"
 
+      # [FIX RL-03] CHANGELOG dinámico
+      - name: Extract CHANGELOG section
+        id: changelog
+        run: |
+          VERSION_PLAIN="${{ steps.version.outputs.VERSION }}"
+          VERSION_PLAIN="${VERSION_PLAIN#v}"
+          NOTES=$(awk "/^## \[${VERSION_PLAIN}\]/{flag=1; next} /^## \[/{flag=0} flag" CHANGELOG.md | head -40)
+          echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Show .vsix info
         run: ls -lh *.vsix
 
-      - name: Create GitHub Release
+      - name: 🚀 Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
@@ -81,6 +107,11 @@ jobs:
           prerelease: ${{ steps.version.outputs.PRERELEASE }}
           body: |
             ## ⚡ LuxCode AI ${{ steps.version.outputs.VERSION }}
+
+            ### 📋 Changelog
+            ${{ steps.changelog.outputs.NOTES }}
+
+            ---
 
             ### 📦 Instalación rápida
             1. **Descarga** el archivo `.vsix` de abajo ↓
@@ -97,19 +128,13 @@ jobs:
             | Ollama | https://ollama.com | ✅ Local |
             | OpenAI | https://platform.openai.com/api-keys | 💳 Pago |
 
-            ### 🚀 ¿Qué puede hacer LuxCode AI?
-            - 🌐 Generar páginas web completas (HTML+CSS+JS)
-            - 📱 Generar apps móviles (React Native, Flutter, Ionic)
-            - 🖥 Generar apps de escritorio (Tauri, Electron)
-            - 🔌 Generar APIs REST (Node.js/Express)
-            - 🤖 Modo Agente para tareas complejas
-            - 🔌 Conectar servidores MCP
+            ### 🚀 Features
+            - 🌐 Web · 📱 Móvil · 🖥 Desktop · 🔌 API REST
+            - 🤖 Modo Agente · 🔌 MCP Servers
             - ✏️ Editar, explicar y corregir bugs con IA
+            - 🧪 17 tests · coverage ≥80% · 5 skills activos
 
             ### 🌐 Sitio web
             https://luisitoys12.github.io/luxcode-ai
-
-            ### 📋 Changelog completo
-            https://github.com/luisitoys12/luxcode-ai/blob/main/CHANGELOG.md
           files: "*.vsix"
           fail_on_unmatched_files: false

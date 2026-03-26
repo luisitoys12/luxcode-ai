@@ -2,7 +2,7 @@
   "name": "luxcode-ai",
   "displayName": "LuxCode AI",
   "description": "Genera web, mobile, desktop y APIs con IA. Modo Agente, MCP, Gemini, Groq, Ollama y más. Open Source.",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "publisher": "luisitoys12",
   "engines": { "vscode": "^1.85.0" },
   "categories": ["AI", "Other"],
@@ -63,6 +63,9 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
     "package": "vsce package",
     "publish": "vsce publish"
   },
@@ -70,6 +73,8 @@
     "@types/vscode": "^1.85.0",
     "@types/node": "^20.0.0",
     "typescript": "^5.3.0",
-    "@vscode/vsce": "^2.22.0"
+    "@vscode/vsce": "^2.22.0",
+    "vitest": "^1.6.0",
+    "@vitest/coverage-v8": "^1.6.0"
   }
 }
