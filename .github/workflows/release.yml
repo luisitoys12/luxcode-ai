@@ -1,0 +1,60 @@
+name: 🚀 Release LuxCode AI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Compile TypeScript
+        run: npm run compile
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Package extension
+        run: vsce package --no-dependencies
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "⚡ LuxCode AI ${{ steps.version.outputs.VERSION }}"
+          body: |
+            ## ⚡ LuxCode AI ${{ steps.version.outputs.VERSION }}
+
+            ### 🚀 Instalación
+            1. Descarga el archivo `.vsix` de abajo
+            2. En VS Code: Extensions → `···` → **Install from VSIX**
+            3. Configura tu API Key de Gemini o OpenAI en el panel lateral
+            4. ¡Empieza a generar páginas web con IA!
+
+            ### 🔑 Obtener API Key gratis
+            - **Google Gemini** (recomendado, gratis): https://aistudio.google.com/app/apikey
+            - **OpenAI GPT-4o**: https://platform.openai.com/api-keys
+
+            ### 📋 Changelog
+            Ver [CHANGELOG.md](https://github.com/luisitoys12/luxcode-ai/blob/main/CHANGELOG.md)
+          files: "*.vsix"
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.VERSION, 'beta') || contains(steps.version.outputs.VERSION, 'alpha') }}

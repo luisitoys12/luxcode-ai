@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LuxCode AI — Crea páginas web con IA desde VS Code</title>
+  <meta name="description" content="Extensión gratuita para VS Code que genera páginas web completas con Google Gemini o OpenAI GPT-4o. Beta disponible ahora.">
+  <meta property="og:title" content="LuxCode AI">
+  <meta property="og:description" content="Crea páginas web con IA directamente desde VS Code">
+  <meta property="og:image" content="https://luisitoys12.github.io/luxcode-ai/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --purple: #7c3aed;
+      --blue: #3b82f6;
+      --bg: #0a0a0f;
+      --card: #111118;
+      --border: #ffffff0f;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 40px;
+      background: #0a0a0fcc;
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo { font-size: 18px; font-weight: 800; background: linear-gradient(135deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      color: white; border: none; padding: 8px 20px;
+      border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse at center, #7c3aed18 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #7c3aed22; color: #a78bfa;
+      border: 1px solid #7c3aed44;
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 12px; font-weight: 600; margin-bottom: 24px;
+    }
+    .badge span { width: 6px; height: 6px; border-radius: 50%; background: #a78bfa; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    h1 {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 900; line-height: 1.1;
+      letter-spacing: -2px; margin-bottom: 20px;
+    }
+    h1 .grad { background: linear-gradient(135deg, #a78bfa, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--muted); max-width: 560px;
+      line-height: 1.6; margin-bottom: 40px;
+    }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 60px; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      color: white; padding: 14px 28px; border-radius: 10px;
+      font-size: 15px; font-weight: 600; text-decoration: none;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); padding: 14px 28px;
+      border-radius: 10px; font-size: 15px; font-weight: 600;
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .btn-secondary:hover { border-color: #ffffff33; }
+
+    /* PREVIEW WINDOW */
+    .preview-window {
+      width: 100%; max-width: 760px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 40px 80px #00000080;
+    }
+    .window-bar {
+      background: #1a1a24; padding: 12px 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+    .window-title { flex: 1; text-align: center; font-size: 12px; color: var(--muted); }
+    .code-preview { padding: 24px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; text-align: left; }
+    .c-purple { color: #c084fc; } .c-blue { color: #60a5fa; } .c-green { color: #4ade80; } .c-orange { color: #fb923c; } .c-muted { color: #64748b; }
+
+    /* FEATURES */
+    .section { padding: 100px 24px; max-width: 1100px; margin: 0 auto; }
+    .section-label { font-size: 12px; font-weight: 700; letter-spacing: 2px; color: #a78bfa; text-transform: uppercase; margin-bottom: 12px; text-align: center; }
+    .section-title { font-size: clamp(28px, 4vw, 44px); font-weight: 800; letter-spacing: -1px; text-align: center; margin-bottom: 12px; }
+    .section-sub { color: var(--muted); text-align: center; font-size: 16px; margin-bottom: 60px; }
+    .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .feature-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .feature-card:hover { border-color: #7c3aed44; transform: translateY(-4px); }
+    .feature-icon { font-size: 28px; margin-bottom: 14px; }
+    .feature-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+    .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* APIS */
+    .apis-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+    .api-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 28px; text-align: center;
+    }
+    .api-name { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+    .api-model { font-size: 13px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-bottom: 14px; }
+    .api-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-free { background: #16a34a22; color: #4ade80; border: 1px solid #16a34a44; }
+    .badge-paid { background: #f59e0b22; color: #fbbf24; border: 1px solid #f59e0b44; }
+
+    /* INSTALL */
+    .install-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 40px; max-width: 680px; margin: 0 auto;
+    }
+    .install-step { display: flex; gap: 16px; margin-bottom: 24px; align-items: flex-start; }
+    .step-num {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--purple), var(--blue));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700;
+    }
+    .step-text { font-size: 14px; line-height: 1.6; color: var(--muted); padding-top: 3px; }
+    .step-text strong { color: var(--text); }
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      background: #ffffff0d; padding: 2px 6px; border-radius: 4px;
+      font-size: 12px; color: #a78bfa;
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px; text-align: center;
+      color: var(--muted); font-size: 13px;
+    }
+    footer a { color: #a78bfa; text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 14px 20px; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <span class="nav-logo">⚡ LuxCode AI</span>
+    <div class="nav-links">
+      <a href="#features">Funciones</a>
+      <a href="#apis">APIs</a>
+      <a href="#install">Instalar</a>
+      <a href="https://github.com/luisitoys12/luxcode-ai">GitHub</a>
+    </div>
+    <a href="https://github.com/luisitoys12/luxcode-ai/releases" class="nav-cta">⬇ Descargar Beta</a>
+  </nav>
+
+  <section class="hero">
+    <div class="badge"><span></span> Beta disponible ahora</div>
+    <h1>Crea páginas web<br><span class="grad">con IA en VS Code</span></h1>
+    <p class="hero-sub">LuxCode AI genera HTML, CSS y JavaScript completo desde una descripción de texto. Usa tu propia API Key de Gemini o OpenAI.</p>
+    <div class="hero-btns">
+      <a href="https://github.com/luisitoys12/luxcode-ai/releases" class="btn-primary">⬇ Descargar extensión</a>
+      <a href="https://github.com/luisitoys12/luxcode-ai" class="btn-secondary">Ver en GitHub →</a>
+    </div>
+    <div class="preview-window">
+      <div class="window-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <span class="window-title">LuxCode AI — Panel</span>
+      </div>
+      <div class="code-preview">
+        <span class="c-muted">// LuxCode AI generando tu página...</span><br>
+        <span class="c-purple">const</span> <span class="c-blue">result</span> = <span class="c-purple">await</span> <span class="c-green">luxcode</span>.<span class="c-blue">generate</span>({<br>
+        &nbsp;&nbsp;<span class="c-orange">description</span>: <span class="c-green">"Landing page para radio musical"</span>,<br>
+        &nbsp;&nbsp;<span class="c-orange">provider</span>: <span class="c-green">"gemini-2.0-flash"</span>,<br>
+        &nbsp;&nbsp;<span class="c-orange">output</span>: [<span class="c-green">"index.html"</span>, <span class="c-green">"style.css"</span>, <span class="c-green">"script.js"</span>]<br>
+        });<br><br>
+        <span class="c-muted">// ✅ 3 archivos creados en tu workspace</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <p class="section-label">Funcionalidades</p>
+    <h2 class="section-title">Todo lo que necesitas</h2>
+    <p class="section-sub">Sin suscripciones. Sin servidores propios. Solo tu API Key y VS Code.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <div class="feature-title">Generador de páginas web</div>
+        <div class="feature-desc">Describe tu idea en lenguaje natural y obtén HTML + CSS + JS completo, moderno y responsive en segundos.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✏️</div>
+        <div class="feature-title">Editar código con IA</div>
+        <div class="feature-desc">Selecciona cualquier fragmento de código, click derecho y pídele a la IA que lo mejore, refactorice o haga responsive.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔑</div>
+        <div class="feature-title">Tu propia API Key</div>
+        <div class="feature-desc">Tu key se guarda localmente en VS Code. Nunca pasa por servidores de LuxCode. Total privacidad y control.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <div class="feature-title">Panel visual integrado</div>
+        <div class="feature-desc">Sidebar nativo en VS Code con interfaz limpia para configurar tu API y lanzar generaciones sin salir del editor.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <div class="feature-title">Archivos organizados</div>
+        <div class="feature-desc">Los archivos generados se guardan automáticamente en carpetas con timestamp dentro de tu workspace abierto.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Gratis y open source</div>
+        <div class="feature-desc">LuxCode AI es 100% gratuito y de código abierto. Usa Gemini 2.0 Flash gratis con límites generosos de Google.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="apis" style="padding-top:0">
+    <p class="section-label">Proveedores</p>
+    <h2 class="section-title">Elige tu IA</h2>
+    <p class="section-sub">Compatible con los mejores modelos del mercado.</p>
+    <div class="apis-grid">
+      <div class="api-card">
+        <div class="api-name">Google Gemini</div>
+        <div class="api-model">gemini-2.0-flash</div>
+        <span class="api-badge badge-free">✅ Gratis con límites</span>
+        <p style="font-size:13px; color:#64748b; margin-top:14px">Obtén tu key gratis en <a href="https://aistudio.google.com" style="color:#a78bfa">aistudio.google.com</a></p>
+      </div>
+      <div class="api-card">
+        <div class="api-name">OpenAI</div>
+        <div class="api-model">gpt-4o</div>
+        <span class="api-badge badge-paid">💳 De pago</span>
+        <p style="font-size:13px; color:#64748b; margin-top:14px">Obtén tu key en <a href="https://platform.openai.com" style="color:#a78bfa">platform.openai.com</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="install" style="padding-top:0">
+    <p class="section-label">Instalación</p>
+    <h2 class="section-title">Listo en 3 minutos</h2>
+    <p class="section-sub">Instala la extensión y empieza a generar páginas ahora.</p>
+    <div class="install-box">
+      <div class="install-step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Descarga el archivo .vsix</strong> desde la sección de <a href="https://github.com/luisitoys12/luxcode-ai/releases" style="color:#a78bfa">Releases en GitHub</a></div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Instala en VS Code</strong> — Ve a Extensions <code>Ctrl+Shift+X</code> → menú <code>···</code> → <strong>Install from VSIX</strong></div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Configura tu API Key</strong> — Abre el panel ⚡ en la barra lateral e ingresa tu key de Gemini o OpenAI</div>
+      </div>
+      <div class="install-step" style="margin-bottom:0">
+        <div class="step-num">4</div>
+        <div class="step-text"><strong>¡Genera tu primera página!</strong> — Escribe la descripción y haz clic en 🚀 Generar con IA</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Hecho con ❤️ por <a href="https://github.com/luisitoys12">@luisitoys12</a> · <a href="https://github.com/luisitoys12/luxcode-ai">GitHub</a> · MIT License</p>
+    <p style="margin-top:8px; opacity:0.5">LuxCode AI v0.1.0-beta · Irapuato, México 🇲🇽</p>
+  </footer>
+
+</body>
+</html>
