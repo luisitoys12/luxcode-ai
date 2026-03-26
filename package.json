@@ -4,12 +4,20 @@
   "description": "Genera web, mobile, desktop y APIs con IA. Modo Agente, MCP, Gemini, Groq, Ollama y más. Open Source.",
   "version": "0.4.0",
   "publisher": "luisitoys12",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/luisitoys12/luxcode-ai"
+  },
+  "homepage": "https://luisitoys12.github.io/luxcode-ai",
+  "bugs": {
+    "url": "https://github.com/luisitoys12/luxcode-ai/issues"
+  },
   "engines": { "vscode": "^1.85.0" },
   "categories": ["AI", "Other"],
-  "keywords": ["ai", "agent", "mcp", "web", "mobile", "desktop", "api", "gemini", "openai", "ollama", "groq", "codegen", "generator", "kilo", "cline"],
+  "keywords": ["ai", "agent", "mcp", "web", "mobile", "desktop", "api", "gemini", "openai", "ollama", "groq", "codegen", "generator"],
   "activationEvents": [],
   "main": "./out/extension.js",
-  "icon": "media/icon.png",
+  "icon": "media/sidebar-icon.svg",
   "contributes": {
     "commands": [
       { "command": "luxcode.openPanel", "title": "LuxCode AI: Abrir Panel" },
@@ -66,8 +74,8 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
-    "package": "vsce package",
-    "publish": "vsce publish"
+    "package": "npx @vscode/vsce package --no-dependencies",
+    "publish": "npx @vscode/vsce publish"
   },
   "devDependencies": {
     "@types/vscode": "^1.85.0",
