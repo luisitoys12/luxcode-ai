@@ -7,17 +7,15 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versión a publicar (ej: v0.4.0)'
+        description: 'Versión (ej: v0.4.0)'
         required: true
         default: 'v0.4.0'
       prerelease:
-        description: '¿Es pre-release / beta?'
+        description: '¿Es pre-release?'
         required: false
         default: 'false'
         type: choice
-        options:
-          - 'false'
-          - 'true'
+        options: ['false', 'true']
 
 jobs:
   test-gate:
@@ -33,7 +31,7 @@ jobs:
       - run: npm run test:coverage
 
   build-and-release:
-    name: 📦 Build & GitHub Release
+    name: 📦 Build & Release
     runs-on: ubuntu-latest
     needs: test-gate
     permissions:
@@ -45,7 +43,7 @@ jobs:
           node-version: '20'
       - run: npm install
       - run: npm run compile
-      - run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher
+      - run: npx @vscode/vsce package --no-dependencies
 
       - name: Get version
         id: version
@@ -55,7 +53,7 @@ jobs:
             echo "PRERELEASE=${{ github.event.inputs.prerelease }}" >> $GITHUB_OUTPUT
           else
             echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-            if [[ "${GITHUB_REF#refs/tags/}" == *"beta"* ]] || [[ "${GITHUB_REF#refs/tags/}" == *"alpha"* ]]; then
+            if [[ "${GITHUB_REF#refs/tags/}" == *"beta"* ]]; then
               echo "PRERELEASE=true" >> $GITHUB_OUTPUT
             else
               echo "PRERELEASE=false" >> $GITHUB_OUTPUT
@@ -80,8 +78,7 @@ jobs:
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: 🚀 Create GitHub Release
-        uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
           name: "⚡ LuxCode AI ${{ steps.version.outputs.VERSION }}"
@@ -95,14 +92,7 @@ jobs:
 
             ---
             ### 📦 Instalación
-            1. Descarga el `.vsix` de abajo ↓
+            1. Descarga el `.vsix` ↓
             2. VS Code → Extensions → `···` → Install from VSIX
-
-            ### 🔑 API Keys gratuitas
-            | Proveedor | Link | Costo |
-            |---|---|---|
-            | Gemini | https://aistudio.google.com/app/apikey | ✅ Gratis |
-            | Groq | https://console.groq.com | ✅ Gratis |
-            | Ollama | https://ollama.com | ✅ Local |
 
             🌐 https://luisitoys12.github.io/luxcode-ai

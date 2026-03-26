@@ -19,15 +19,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          # NO cache: npm — lock vacío causa exit code 1
-      - name: Install dependencies
-        run: npm install
-      - name: 🧪 Run tests
-        run: npm test
-      - name: 📊 Coverage
-        run: npm run test:coverage
-      - name: Upload coverage
-        uses: actions/upload-artifact@v4
+      - run: npm install
+      - run: npm test
+      - run: npm run test:coverage
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: coverage-report
@@ -44,12 +39,9 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - name: 🔨 Compile TypeScript
-        run: npm run compile
-      - name: 📦 Package VSIX
-        run: npx @vscode/vsce package --no-dependencies --allow-missing-publisher
-      - name: Upload VSIX
-        uses: actions/upload-artifact@v4
+      - run: npm run compile
+      - run: npx @vscode/vsce package --no-dependencies
+      - uses: actions/upload-artifact@v4
         with:
           name: vsix-package
           path: '*.vsix'
