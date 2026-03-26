@@ -1,0 +1,50 @@
+name: \u2699\ufe0f CI — Build & Test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: \ud83d\udd28 Build TypeScript
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['18', '20', '22']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: \ud83d\udd27 Run skills.sh (CI mode)
+        run: |
+          chmod +x skills.sh
+          npm install
+          npm install -g @vscode/vsce typescript
+
+      - name: \ud83d\udd28 Compile TypeScript
+        run: npm run compile
+
+      - name: \ud83d\udce6 Package .vsix
+        run: vsce package --no-dependencies --allow-missing-publisher
+
+      - name: \ud83d\udcca Check build output
+        run: |
+          echo "## \u2699\ufe0f CI Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Node | Estado | .vsix |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          VSIX=$(ls *.vsix 2>/dev/null | head -1)
+          SIZE=$(du -h $VSIX 2>/dev/null | cut -f1)
+          echo "| ${{ matrix.node-version }} | \u2705 OK | $VSIX ($SIZE) |" >> $GITHUB_STEP_SUMMARY
+
+      - name: \ud83d\udce4 Upload artifact
+        uses: actions/upload-artifact@v4
+        if: matrix.node-version == '20'
+        with:
+          name: luxcode-ai-ci-node${{ matrix.node-version }}-${{ github.sha }}
+          path: '*.vsix'
+          retention-days: 3
