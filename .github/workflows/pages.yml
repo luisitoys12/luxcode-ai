@@ -2,10 +2,10 @@ name: 🌐 Deploy GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'docs/**'
+      - '.github/workflows/pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,10 +15,11 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   deploy:
+    name: 🌐 Deploy a GitHub Pages
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -26,6 +27,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Inject version from package.json
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          sed -i "s/v0\.4\.0/v${VERSION}/g" docs/index.html
+          echo "## 🌐 GitHub Pages" >> $GITHUB_STEP_SUMMARY
+          echo "| Campo | Valor |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Versión | v${VERSION} |" >> $GITHUB_STEP_SUMMARY
+          echo "| URL | https://luisitoys12.github.io/luxcode-ai |" >> $GITHUB_STEP_SUMMARY
+          echo "| Estado | ✅ Desplegado |" >> $GITHUB_STEP_SUMMARY
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

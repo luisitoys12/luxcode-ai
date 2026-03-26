@@ -1,470 +1,401 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LuxCode AI — Genera Web, Mobile & Desktop con IA</title>
-  <meta name="description" content="La extensión VS Code más poderosa para generar páginas web, apps móviles y de escritorio con IA. Gemini, GPT-4o, Groq, Ollama y más. Gratis y open source.">
-  <meta property="og:title" content="LuxCode AI — Mejor que Cursor. Gratis.">
-  <meta property="og:description" content="Genera webs, apps móviles y de escritorio con IA directamente en VS Code. Open source, sin suscripción.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --p:#7c3aed;--b:#3b82f6;--g:#10b981;--o:#f59e0b;
-      --bg:#07070d;--card:#0d0d18;--card2:#12121f;
-      --border:#ffffff0a;--border2:#ffffff14;
-      --text:#f1f5f9;--muted:#64748b;--muted2:#94a3b8;
-    }
-    *{margin:0;padding:0;box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="LuxCode AI — Extensión VS Code para generar proyectos web, móvil, desktop y APIs con IA. Gemini, Groq, Ollama, OpenAI. Open Source MIT.">
+<meta property="og:title" content="⚡ LuxCode AI">
+<meta property="og:description" content="Genera proyectos completos con IA directamente en VS Code. Gratis. Open Source.">
+<meta property="og:image" content="https://luisitoys12.github.io/luxcode-ai/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<title>⚡ LuxCode AI — Generador de proyectos con IA para VS Code</title>
+<style>
+:root{
+  --primary:#7c3aed;--primary-light:#a78bfa;--accent:#3b82f6;
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a28;
+  --text:#f1f0ff;--muted:#8b8aa8;--border:#ffffff12;
+  --radius:12px;--radius-sm:8px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
 
-    /* NOISE OVERLAY */
-    body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 32px;
+  background:#0a0a0fcc;backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-weight:800;font-size:18px;background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:24px;font-size:14px;color:var(--muted)}
+.nav-links a:hover{color:var(--text);transition:color .2s}
+.nav-cta{
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  color:#fff;padding:8px 18px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:600;
+  transition:filter .2s,transform .2s;
+}
+.nav-cta:hover{filter:brightness(1.15);transform:translateY(-1px)}
 
-    /* NAV */
-    nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:60px;background:#07070dcc;backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-    .nav-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--p),var(--b));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-    .nav-logo-text{font-size:16px;font-weight:800;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .nav-center{display:flex;gap:28px}
-    .nav-center a{color:var(--muted2);text-decoration:none;font-size:14px;font-weight:500;transition:color .2s}
-    .nav-center a:hover{color:var(--text)}
-    .nav-right{display:flex;gap:10px;align-items:center}
-    .nav-gh{display:flex;align-items:center;gap:6px;color:var(--muted2);text-decoration:none;font-size:13px;padding:6px 14px;border:1px solid var(--border2);border-radius:8px;transition:border-color .2s}
-    .nav-gh:hover{border-color:#ffffff30}
-    .nav-cta{background:linear-gradient(135deg,var(--p),var(--b));color:#fff;border:none;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;transition:opacity .2s,transform .2s}
-    .nav-cta:hover{opacity:.85;transform:translateY(-1px)}
+/* HERO */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:120px 24px 80px;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 20%,#7c3aed18,transparent),
+             radial-gradient(ellipse 60% 40% at 80% 80%,#3b82f618,transparent);
+  pointer-events:none;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--surface2);border:1px solid var(--border);
+  padding:6px 14px;border-radius:100px;
+  font-size:12px;color:var(--primary-light);font-weight:600;
+  margin-bottom:24px;letter-spacing:.5px;
+}
+.hero h1{
+  font-size:clamp(2.4rem,6vw,4.5rem);
+  font-weight:900;line-height:1.1;
+  background:linear-gradient(135deg,#fff 30%,var(--primary-light));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:20px;
+}
+.hero p{font-size:clamp(1rem,2vw,1.25rem);color:var(--muted);max-width:600px;margin:0 auto 40px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  color:#fff;padding:14px 28px;border-radius:var(--radius-sm);
+  font-size:15px;font-weight:700;
+  transition:filter .2s,transform .2s;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-primary:hover{filter:brightness(1.15);transform:translateY(-2px)}
+.btn-secondary{
+  background:var(--surface2);border:1px solid var(--border);
+  color:var(--text);padding:14px 28px;border-radius:var(--radius-sm);
+  font-size:15px;font-weight:600;
+  transition:background .2s,transform .2s;display:inline-flex;align-items:center;gap:8px;
+}
+.btn-secondary:hover{background:var(--surface);transform:translateY(-2px)}
 
-    /* HERO */
-    .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px 60px;position:relative}
-    .hero-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,#7c3aed14 0%,transparent 65%);pointer-events:none}
-    .hero-glow2{position:absolute;top:40%;left:30%;width:400px;height:400px;background:radial-gradient(ellipse,#3b82f610 0%,transparent 65%);pointer-events:none}
-    .hero-badge{display:inline-flex;align-items:center;gap:8px;background:#7c3aed18;color:#a78bfa;border:1px solid #7c3aed30;border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;margin-bottom:28px;cursor:default}
-    .hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#a78bfa;animation:glow 2s ease-in-out infinite}
-    @keyframes glow{0%,100%{box-shadow:0 0 4px #a78bfa;opacity:1}50%{box-shadow:0 0 12px #a78bfa;opacity:.6}}
-    h1{font-size:clamp(40px,7vw,80px);font-weight:900;line-height:1.05;letter-spacing:-3px;margin-bottom:24px;position:relative;z-index:1}
-    .h1-line2{display:block;background:linear-gradient(135deg,#a78bfa 0%,#60a5fa 50%,#34d399 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .hero-sub{font-size:clamp(16px,2vw,20px);color:var(--muted2);max-width:580px;margin-bottom:36px;position:relative;z-index:1}
-    .hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:16px;position:relative;z-index:1}
-    .btn-hero-primary{background:linear-gradient(135deg,var(--p),var(--b));color:#fff;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:transform .2s,box-shadow .2s}
-    .btn-hero-primary:hover{transform:translateY(-3px);box-shadow:0 16px 40px #7c3aed40}
-    .btn-hero-secondary{background:#ffffff08;color:var(--text);border:1px solid var(--border2);padding:14px 28px;border-radius:10px;font-size:15px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:border-color .2s,background .2s}
-    .btn-hero-secondary:hover{border-color:#ffffff25;background:#ffffff0f}
-    .hero-note{font-size:12px;color:var(--muted);margin-bottom:60px}
+/* DEMO WINDOW */
+.demo-window{
+  margin:60px auto 0;max-width:700px;width:100%;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 40px 80px #00000060;
+}
+.demo-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border)}
+.demo-dot{width:12px;height:12px;border-radius:50%}
+.demo-dot.r{background:#ef4444}.demo-dot.y{background:#f59e0b}.demo-dot.g{background:#22c55e}
+.demo-title{flex:1;text-align:center;font-size:12px;color:var(--muted)}
+.demo-body{padding:20px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7}
+.demo-body .c-purple{color:#a78bfa}
+.demo-body .c-blue{color:#60a5fa}
+.demo-body .c-green{color:#4ade80}
+.demo-body .c-yellow{color:#fbbf24}
+.demo-body .c-gray{color:#6b7280}
 
-    /* STATS */
-    .stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap;margin-bottom:60px;position:relative;z-index:1}
-    .stat{text-align:center}
-    .stat-num{font-size:28px;font-weight:900;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-    .stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+/* STATS */
+.stats{
+  display:flex;justify-content:center;gap:48px;
+  padding:48px 24px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  flex-wrap:wrap;
+}
+.stat{text-align:center}
+.stat-num{font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,var(--primary-light),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-label{font-size:13px;color:var(--muted);margin-top:4px}
 
-    /* TERMINAL DEMO */
-    .terminal{width:100%;max-width:820px;background:var(--card);border:1px solid var(--border2);border-radius:16px;overflow:hidden;box-shadow:0 40px 100px #00000060;position:relative;z-index:1}
-    .terminal-bar{background:#0d0d18;padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
-    .t-dot{width:12px;height:12px;border-radius:50%}
-    .t-r{background:#ff5f57}.t-y{background:#febc2e}.t-g{background:#28c840}
-    .t-title{flex:1;text-align:center;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace}
-    .terminal-tabs{display:flex;border-bottom:1px solid var(--border)}
-    .t-tab{padding:10px 20px;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:color .2s}
-    .t-tab.active{color:#a78bfa;border-bottom-color:#a78bfa}
-    .terminal-body{padding:24px;font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.8;min-height:180px;text-align:left}
-    .t-comment{color:#475569}.t-purple{color:#c084fc}.t-blue{color:#60a5fa}.t-green{color:#4ade80}.t-orange{color:#fb923c}.t-string{color:#86efac}.t-cursor{display:inline-block;width:8px;height:14px;background:#a78bfa;animation:blink 1s infinite;vertical-align:middle;margin-left:2px}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+/* FEATURES */
+.section{padding:80px 24px;max-width:1100px;margin:0 auto}
+.section-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary-light);margin-bottom:12px}
+.section-title{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;margin-bottom:16px}
+.section-sub{color:var(--muted);font-size:1.05rem;max-width:560px;margin-bottom:56px}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.feature-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:28px;
+  transition:border-color .2s,transform .2s;
+}
+.feature-card:hover{border-color:var(--primary);transform:translateY(-3px)}
+.feature-icon{font-size:2rem;margin-bottom:14px}
+.feature-card h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+.feature-card p{font-size:14px;color:var(--muted);line-height:1.6}
 
-    /* COMPARE SECTION */
-    .section{padding:80px 24px;max-width:1100px;margin:0 auto}
-    .s-label{font-size:11px;font-weight:700;letter-spacing:3px;color:#a78bfa;text-transform:uppercase;margin-bottom:12px;text-align:center}
-    .s-title{font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-1.5px;text-align:center;margin-bottom:12px}
-    .s-sub{color:var(--muted2);text-align:center;font-size:16px;margin-bottom:56px;max-width:540px;margin-left:auto;margin-right:auto}
+/* PROVIDERS */
+.providers{padding:60px 24px;text-align:center;max-width:900px;margin:0 auto}
+.providers-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:36px}
+.provider-pill{
+  background:var(--surface);border:1px solid var(--border);
+  padding:10px 20px;border-radius:100px;
+  font-size:14px;font-weight:600;
+  display:inline-flex;align-items:center;gap:8px;
+  transition:border-color .2s,transform .2s;
+}
+.provider-pill:hover{border-color:var(--primary-light);transform:translateY(-2px)}
+.pill-free{font-size:10px;background:#22c55e20;color:#4ade80;padding:2px 8px;border-radius:100px;margin-left:4px}
+.pill-paid{font-size:10px;background:#f59e0b20;color:#fbbf24;padding:2px 8px;border-radius:100px;margin-left:4px}
 
-    /* COMPARE TABLE */
-    .compare-wrap{overflow-x:auto}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    thead th{padding:14px 20px;text-align:center;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--muted)}
-    thead th:first-child{text-align:left}
-    thead th.lux{color:#a78bfa;background:#7c3aed10;border-radius:8px 8px 0 0}
-    tbody td{padding:14px 20px;border-top:1px solid var(--border);text-align:center;font-size:14px}
-    tbody td:first-child{text-align:left;color:var(--muted2)}
-    tbody td.lux{background:#7c3aed07;color:var(--text);font-weight:600}
-    .check{color:#4ade80;font-size:16px}
-    .cross{color:#ef4444;font-size:16px}
-    .partial{color:#f59e0b;font-size:14px}
+/* INSTALL */
+.install-section{padding:80px 24px;text-align:center}
+.install-steps{display:flex;justify-content:center;gap:0;flex-wrap:wrap;margin:48px auto;max-width:800px}
+.step{flex:1;min-width:160px;padding:24px 16px;position:relative}
+.step:not(:last-child)::after{
+  content:'→';position:absolute;right:-8px;top:50%;transform:translateY(-50%);
+  color:var(--muted);font-size:20px;
+}
+.step-num{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:16px;margin:0 auto 12px;
+}
+.step h4{font-size:14px;font-weight:700;margin-bottom:4px}
+.step p{font-size:12px;color:var(--muted)}
+.code-block{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:16px 24px;
+  font-family:'JetBrains Mono',monospace;font-size:14px;
+  display:inline-block;margin-top:24px;color:var(--primary-light);
+}
 
-    /* FEATURES BENTO */
-    .bento{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-    .bento-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;transition:border-color .3s,transform .3s;position:relative;overflow:hidden}
-    .bento-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#7c3aed40,transparent);opacity:0;transition:opacity .3s}
-    .bento-card:hover{border-color:#7c3aed30;transform:translateY(-4px)}
-    .bento-card:hover::before{opacity:1}
-    .bento-card.wide{grid-column:span 2}
-    .bento-icon{font-size:32px;margin-bottom:14px}
-    .bento-title{font-size:17px;font-weight:800;margin-bottom:8px}
-    .bento-desc{font-size:13px;color:var(--muted2);line-height:1.7}
-    .bento-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
-    .tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#ffffff0a;color:var(--muted2);border:1px solid var(--border2)}
-    .tag.purple{background:#7c3aed15;color:#a78bfa;border-color:#7c3aed30}
-    .tag.green{background:#10b98115;color:#34d399;border-color:#10b98130}
-    .tag.blue{background:#3b82f615;color:#60a5fa;border-color:#3b82f630}
+/* SKILLS SECTION */
+.skills-section{padding:60px 24px;max-width:1000px;margin:0 auto;text-align:center}
+.skills-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:32px}
+.skill-chip{
+  background:var(--surface2);border:1px solid var(--border);
+  padding:8px 16px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;
+}
+.skill-chip .trigger{font-family:monospace;color:var(--primary-light);font-size:12px}
 
-    /* MINI CHAT */
-    .chat-section{padding:80px 24px;background:linear-gradient(180deg,transparent,#0d0d1880,transparent)}
-    .chat-container{max-width:680px;margin:0 auto}
-    .chat-box{background:var(--card);border:1px solid var(--border2);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px #00000040}
-    .chat-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;background:var(--card2)}
-    .chat-avatar{width:36px;height:36px;background:linear-gradient(135deg,var(--p),var(--b));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-    .chat-header-info h3{font-size:14px;font-weight:700}
-    .chat-header-info p{font-size:11px;color:var(--muted)}
-    .chat-online{width:8px;height:8px;background:#10b981;border-radius:50%;margin-left:auto;box-shadow:0 0 8px #10b981}
-    .chat-messages{padding:20px;min-height:280px;max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-    .chat-messages::-webkit-scrollbar{width:4px}
-    .chat-messages::-webkit-scrollbar-track{background:transparent}
-    .chat-messages::-webkit-scrollbar-thumb{background:#ffffff15;border-radius:4px}
-    .msg{display:flex;gap:10px;align-items:flex-start;animation:fadeUp .3s ease}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    .msg.user{flex-direction:row-reverse}
-    .msg-avatar{width:30px;height:30px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
-    .msg-avatar.ai{background:linear-gradient(135deg,var(--p),var(--b))}
-    .msg-avatar.user-av{background:#ffffff15}
-    .msg-bubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:85%}
-    .msg-bubble.ai{background:var(--card2);border:1px solid var(--border);border-radius:4px 12px 12px 12px}
-    .msg-bubble.user{background:linear-gradient(135deg,var(--p),var(--b));color:#fff;border-radius:12px 4px 12px 12px}
-    .chat-input-area{padding:14px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--card2)}
-    .chat-input{flex:1;background:#ffffff08;border:1px solid var(--border2);border-radius:10px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
-    .chat-input:focus{border-color:#7c3aed50}
-    .chat-input::placeholder{color:var(--muted)}
-    .chat-send{background:linear-gradient(135deg,var(--p),var(--b));border:none;color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:opacity .2s,transform .2s;flex-shrink:0}
-    .chat-send:hover{opacity:.85;transform:scale(1.05)}
-    .chat-note{font-size:11px;color:var(--muted);text-align:center;margin-top:12px}
-    .typing{display:flex;gap:4px;align-items:center;padding:10px 14px}
-    .typing span{width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:typing .8s ease-in-out infinite}
-    .typing span:nth-child(2){animation-delay:.15s}
-    .typing span:nth-child(3){animation-delay:.3s}
-    @keyframes typing{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-4px);opacity:1}}
+/* FOOTER */
+footer{
+  padding:40px 24px;text-align:center;
+  border-top:1px solid var(--border);
+  color:var(--muted);font-size:13px;
+}
+footer a{color:var(--primary-light)}
+footer a:hover{text-decoration:underline}
 
-    /* PROVIDERS */
-    .providers-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
-    .provider-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;transition:border-color .2s,transform .2s}
-    .provider-card:hover{border-color:#7c3aed30;transform:translateY(-3px)}
-    .prov-name{font-size:15px;font-weight:800;margin:10px 0 4px}
-    .prov-model{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:10px}
-    .prov-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-    .free{background:#10b98115;color:#34d399;border:1px solid #10b98130}
-    .local{background:#3b82f615;color:#60a5fa;border:1px solid #3b82f630}
-    .paid{background:#f59e0b15;color:#fbbf24;border:1px solid #f59e0b30}
-    .prov-icon{font-size:28px}
-
-    /* INSTALL */
-    .install-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-    .install-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;position:relative}
-    .install-num{position:absolute;top:20px;right:20px;font-size:32px;font-weight:900;color:#ffffff06;font-family:'JetBrains Mono',monospace}
-    .install-icon{font-size:24px;margin-bottom:12px}
-    .install-title{font-size:15px;font-weight:700;margin-bottom:6px}
-    .install-desc{font-size:13px;color:var(--muted2);line-height:1.6}
-    code{font-family:'JetBrains Mono',monospace;background:#ffffff0d;padding:2px 7px;border-radius:5px;font-size:12px;color:#a78bfa}
-
-    /* FOOTER */
-    footer{border-top:1px solid var(--border);padding:50px 24px;text-align:center}
-    .footer-logo{font-size:22px;font-weight:900;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
-    .footer-links{display:flex;gap:24px;justify-content:center;margin:16px 0;flex-wrap:wrap}
-    .footer-links a{color:var(--muted);text-decoration:none;font-size:13px;transition:color .2s}
-    .footer-links a:hover{color:var(--text)}
-    .footer-copy{font-size:12px;color:var(--muted);margin-top:8px}
-
-    @media(max-width:900px){.bento{grid-template-columns:1fr 1fr}.bento-card.wide{grid-column:span 2}}
-    @media(max-width:640px){nav{padding:0 16px}.nav-center{display:none}.bento{grid-template-columns:1fr}.bento-card.wide{grid-column:span 1}.stats{gap:24px}}
-  </style>
+/* RESPONSIVE */
+@media(max-width:640px){
+  nav{padding:12px 16px}
+  .nav-links{display:none}
+  .stats{gap:24px}
+  .step:not(:last-child)::after{display:none}
+  .install-steps{flex-direction:column;align-items:center}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
-  <a class="nav-logo" href="#">
-    <div class="nav-logo-icon">⚡</div>
-    <span class="nav-logo-text">LuxCode AI</span>
-  </a>
-  <div class="nav-center">
-    <a href="#compare">vs Competencia</a>
-    <a href="#features">Funciones</a>
-    <a href="#chat">Mini Chat</a>
-    <a href="#providers">IAs</a>
+  <span class="nav-logo">⚡ LuxCode AI</span>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#providers">Providers</a>
     <a href="#install">Instalar</a>
+    <a href="https://github.com/luisitoys12/luxcode-ai" target="_blank" rel="noopener">GitHub</a>
   </div>
-  <div class="nav-right">
-    <a href="https://github.com/luisitoys12/luxcode-ai" class="nav-gh">⭐ GitHub</a>
-    <a href="https://github.com/luisitoys12/luxcode-ai/releases" class="nav-cta">↓ Beta gratis</a>
-  </div>
+  <a href="https://marketplace.visualstudio.com/items?itemName=luisitoys12.luxcode-ai"
+     class="nav-cta" target="_blank" rel="noopener">
+    Instalar extensión →
+  </a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-glow"></div>
-  <div class="hero-glow2"></div>
-  <div class="hero-badge"><span class="hero-badge-dot"></span> v0.2.0 Beta — Open Source & Gratis</div>
-  <h1>El generador de apps<br><span class="h1-line2">con IA más poderoso</span></h1>
-  <p class="hero-sub">Web, móvil y escritorio. Con Gemini, GPT-4o, Groq, Ollama y más. Sin suscripción. Sin servidores. Tu API Key, tu control.</p>
+  <div class="badge">⚡ v0.4.0 — Open Source MIT</div>
+  <h1>Genera proyectos completos<br>con IA en VS Code</h1>
+  <p>Web · Móvil · Desktop · APIs — con Gemini, Groq, Ollama, OpenAI y más.<br>
+     Gratis. Sin límites. Sin suscripción.</p>
   <div class="hero-btns">
-    <a href="https://github.com/luisitoys12/luxcode-ai/releases" class="btn-hero-primary">↓ Descargar extensión gratis</a>
-    <a href="#chat" class="btn-hero-secondary">💬 Probar Mini Chat</a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=luisitoys12.luxcode-ai"
+       class="btn-primary" target="_blank" rel="noopener">
+      🔌 Instalar en VS Code
+    </a>
+    <a href="https://github.com/luisitoys12/luxcode-ai"
+       class="btn-secondary" target="_blank" rel="noopener">
+      ⭐ Star en GitHub
+    </a>
   </div>
-  <p class="hero-note">✓ Gratis para siempre &nbsp;·&nbsp; ✓ Open Source MIT &nbsp;·&nbsp; ✓ Sin telemetría</p>
-  <div class="stats">
-    <div class="stat"><div class="stat-num">6+</div><div class="stat-label">Proveedores de IA</div></div>
-    <div class="stat"><div class="stat-num">3</div><div class="stat-label">Tipos de apps</div></div>
-    <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Open Source</div></div>
-    <div class="stat"><div class="stat-num">$0</div><div class="stat-label">Costo base</div></div>
-  </div>
-  <div class="terminal">
-    <div class="terminal-bar">
-      <div class="t-dot t-r"></div><div class="t-dot t-y"></div><div class="t-dot t-g"></div>
-      <span class="t-title">⚡ luxcode-ai — VS Code Extension</span>
+
+  <!-- DEMO WINDOW -->
+  <div class="demo-window" aria-label="Demo de LuxCode AI">
+    <div class="demo-bar">
+      <span class="demo-dot r"></span>
+      <span class="demo-dot y"></span>
+      <span class="demo-dot g"></span>
+      <span class="demo-title">LuxCode AI — Generando proyecto...</span>
     </div>
-    <div class="terminal-tabs">
-      <div class="t-tab active" onclick="switchTab(this,'web')">🌐 Web</div>
-      <div class="t-tab" onclick="switchTab(this,'mobile')">📱 Móvil</div>
-      <div class="t-tab" onclick="switchTab(this,'desktop')">🖥 Desktop</div>
-    </div>
-    <div class="terminal-body" id="termBody">
-      <span class="t-comment">// 🌐 Generando Landing Page para radio musical...</span><br>
-      <span class="t-purple">const</span> <span class="t-blue">page</span> = <span class="t-purple">await</span> <span class="t-blue">luxcode</span>.<span class="t-green">generate</span>({<br>
-      &nbsp;&nbsp;<span class="t-orange">type</span>: <span class="t-string">'web'</span>, <span class="t-orange">subtype</span>: <span class="t-string">'Radio/Streaming'</span>,<br>
-      &nbsp;&nbsp;<span class="t-orange">model</span>: <span class="t-string">'gemini-2.0-flash'</span>,<br>
-      &nbsp;&nbsp;<span class="t-orange">desc</span>: <span class="t-string">'Radio Estación KUS con reproductor y chat'</span><br>
-      });<br><br>
-      <span class="t-comment">// ✅ Archivos generados en luxcode-radio-2026-03-26/</span><br>
-      <span class="t-comment">//    index.html · style.css · script.js</span><span class="t-cursor"></span>
+    <div class="demo-body" aria-hidden="true">
+      <span class="c-gray">// ⚡ LuxCode AI v0.4.0</span><br>
+      <span class="c-purple">const</span> <span class="c-blue">ai</span> = <span class="c-purple">new</span> <span class="c-yellow">AIService</span>(<span class="c-green">'gemini'</span>, apiKey);<br><br>
+      <span class="c-gray">// 🚀 Generando: Landing Page · Radio Streaming</span><br>
+      <span class="c-purple">const</span> <span class="c-blue">files</span> = <span class="c-purple">await</span> ai.<span class="c-yellow">generate</span>(<br>
+      &nbsp;&nbsp;<span class="c-green">'web'</span>, <span class="c-green">'Radio/Streaming'</span>,<br>
+      &nbsp;&nbsp;<span class="c-green">'Estación de radio con chat en vivo'</span><br>
+      );<br><br>
+      <span class="c-gray">// ✅ Archivos generados:</span><br>
+      <span class="c-gray">// &nbsp;→ index.html &nbsp;→ style.css &nbsp;→ player.js</span><br>
+      <span class="c-gray">// &nbsp;→ server.js &nbsp;&nbsp;→ package.json</span><br><br>
+      <span class="c-green">✅ Radio/Streaming generado en 2.3s</span>
     </div>
   </div>
 </section>
 
-<!-- COMPARE -->
-<div id="compare" style="padding-top:40px">
-<div class="section">
-  <p class="s-label">Comparativa</p>
-  <h2 class="s-title">Mejor que la competencia</h2>
-  <p class="s-sub">Todo lo que tienen Cursor, GitHub Copilot y otros — más lo que no tienen.</p>
-  <div class="compare-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Función</th>
-        <th class="lux">⚡ LuxCode AI</th>
-        <th>Cursor</th>
-        <th>GitHub Copilot</th>
-        <th>Codeium</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>Completado de código IA</td><td class="lux"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Generar página web completa</td><td class="lux"><span class="check">✓</span></td><td><span class="partial">~ parcial</span></td><td><span class="partial">~ parcial</span></td><td><span class="cross">✗</span></td></tr>
-      <tr><td>Generar app móvil</td><td class="lux"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-      <tr><td>Generar app de escritorio</td><td class="lux"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-      <tr><td>Ollama / modelos locales</td><td class="lux"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td></tr>
-      <tr><td>Groq (gratis, ultra rápido)</td><td class="lux"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-      <tr><td>Mini Chat IA en el sitio</td><td class="lux"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-      <tr><td>Precio base</td><td class="lux" style="color:#4ade80">$0 / Gratis</td><td style="color:#f87171">$20/mes</td><td style="color:#f87171">$10/mes</td><td style="color:#4ade80">Gratis</td></tr>
-      <tr><td>Open Source</td><td class="lux"><span class="check">✓ MIT</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-      <tr><td>Sin telemetría</td><td class="lux"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-    </tbody>
-  </table>
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Proveedores IA</div>
   </div>
-</div>
+  <div class="stat">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Agent Skills</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">17</div>
+    <div class="stat-label">Tests passing</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">100%</div>
+    <div class="stat-label">Open Source</div>
+  </div>
 </div>
 
-<!-- FEATURES BENTO -->
-<div id="features">
-<div class="section">
-  <p class="s-label">Funciones</p>
-  <h2 class="s-title">Todo en uno</h2>
-  <p class="s-sub">Cada herramienta que necesitas para crear cualquier tipo de app con IA.</p>
-  <div class="bento">
-    <div class="bento-card wide">
-      <div class="bento-icon">🚀</div>
-      <div class="bento-title">Generador multi-plataforma</div>
-      <div class="bento-desc">Describe tu idea y genera proyectos completos: páginas web con HTML/CSS/JS, apps móviles con React Native o Flutter, y apps de escritorio con Tauri o Electron. Archivos organizados en tu workspace automáticamente.</div>
-      <div class="bento-tags">
-        <span class="tag purple">Web</span><span class="tag green">Mobile</span><span class="tag blue">Desktop</span>
-        <span class="tag">HTML/CSS/JS</span><span class="tag">React Native</span><span class="tag">Flutter</span><span class="tag">Tauri</span><span class="tag">Electron</span>
-      </div>
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="section-label">Features</div>
+  <h2 class="section-title">Todo lo que necesitas para generar</h2>
+  <p class="section-sub">Sin límites artificiales. Sin suscripción. Solo IA generando código real.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <h3>Proyectos Web</h3>
+      <p>Landing pages, portfolios, dashboards, blogs, e-commerce, radio/streaming y PWAs completas con HTML+CSS+JS.</p>
     </div>
-    <div class="bento-card">
-      <div class="bento-icon">✏️</div>
-      <div class="bento-title">Editar con IA</div>
-      <div class="bento-desc">Selecciona cualquier código en el editor y pídele a la IA que lo mejore, refactorice o haga responsive con una sola instrucción.</div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h3>Apps Móviles</h3>
+      <p>React Native, Flutter e Ionic. Genera la estructura completa del proyecto lista para correr.</p>
     </div>
-    <div class="bento-card">
-      <div class="bento-icon">🐛</div>
-      <div class="bento-title">Fix Bug automático</div>
-      <div class="bento-desc">Pega el mensaje de error junto al código y LuxCode lo detecta y corrige automáticamente. Debugging asistido por IA.</div>
+    <div class="feature-card">
+      <div class="feature-icon">🖥</div>
+      <h3>Apps Desktop</h3>
+      <p>Tauri, Electron y Neutralino.js. Apps de escritorio cross-platform generadas en segundos.</p>
     </div>
-    <div class="bento-card">
-      <div class="bento-icon">📖</div>
-      <div class="bento-title">Explicar código</div>
-      <div class="bento-desc">Genera documentación Markdown detallada de cualquier fragmento de código. Perfecto para entender código ajeno o documentar el tuyo.</div>
+    <div class="feature-card">
+      <div class="feature-icon">🔌</div>
+      <h3>APIs REST</h3>
+      <p>Node.js + Express con rutas, middleware, autenticación JWT y tests de integración incluidos.</p>
     </div>
-    <div class="bento-card">
-      <div class="bento-icon">🦙</div>
-      <div class="bento-title">100% Local con Ollama</div>
-      <div class="bento-desc">Usa Llama 3, Mistral, CodeLlama, DeepSeek Coder o Phi-3 sin internet y sin API Key. Tu código nunca sale de tu máquina.</div>
-      <div class="bento-tags"><span class="tag blue">Sin internet</span><span class="tag green">Privado</span></div>
+    <div class="feature-card">
+      <div class="feature-icon">🤖</div>
+      <h3>Modo Agente</h3>
+      <p>Planifica y ejecuta tareas complejas en múltiples pasos. Divide y conquista cualquier proyecto.</p>
     </div>
-    <div class="bento-card">
-      <div class="bento-icon">💬</div>
-      <div class="bento-title">Mini Chat IA</div>
-      <div class="bento-desc">Chat integrado en el sitio para consultas rápidas sobre desarrollo. Prueba LuxCode AI sin instalar nada, desde el navegador.</div>
-      <div class="bento-tags"><span class="tag purple">Demo en vivo</span></div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <h3>Seguridad primero</h3>
+      <p>API keys cifradas con VS Code Secrets API. CSP con nonce en WebViews. Auditoría continua de dependencias.</p>
     </div>
-  </div>
-</div>
-</div>
-
-<!-- MINI CHAT -->
-<div id="chat">
-<div class="chat-section">
-  <div class="chat-container">
-    <p class="s-label" style="text-align:center;margin-bottom:12px">Demo en vivo</p>
-    <h2 class="s-title" style="margin-bottom:8px">Mini Chat IA</h2>
-    <p class="s-sub">Hazle preguntas sobre desarrollo web, código o LuxCode AI. Powered by Gemini.</p>
-    <div class="chat-box">
-      <div class="chat-header">
-        <div class="chat-avatar">⚡</div>
-        <div class="chat-header-info">
-          <h3>LuxCode AI Assistant</h3>
-          <p>Powered by Gemini 2.0 Flash</p>
-        </div>
-        <div class="chat-online"></div>
-      </div>
-      <div class="chat-messages" id="chatMessages">
-        <div class="msg">
-          <div class="msg-avatar ai">⚡</div>
-          <div class="msg-bubble ai">¡Hola! Soy LuxCode AI 👋 Puedo ayudarte con desarrollo web, código, o explicarte cómo generar apps con IA. ¿En qué trabajas hoy?</div>
-        </div>
-      </div>
-      <div class="chat-input-area">
-        <input class="chat-input" id="chatInput" placeholder="Pregunta algo sobre código o desarrollo..." onkeydown="if(event.key==='Enter')sendChat()" />
-        <button class="chat-send" onclick="sendChat()">➤</button>
-      </div>
+    <div class="feature-card">
+      <div class="feature-icon">✏️</div>
+      <h3>Editor IA</h3>
+      <p>Edita, explica y corrige bugs en el código seleccionado directamente desde el menú contextual.</p>
     </div>
-    <p class="chat-note">⚠️ Necesitas tu propia Gemini API Key para el chat. <a href="https://aistudio.google.com/app/apikey" style="color:#a78bfa">Obtén una gratis aquí →</a></p>
-    <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap" id="chatKeyArea">
-      <input type="password" id="chatApiKey" placeholder="Pega tu Gemini API Key para activar el chat" style="flex:1;max-width:340px;padding:8px 12px;border-radius:8px;border:1px solid #ffffff15;background:#ffffff08;color:#f1f5f9;font-size:12px;font-family:Inter,sans-serif;outline:none" />
-      <button onclick="activateChat()" style="background:linear-gradient(135deg,#7c3aed,#3b82f6);border:none;color:#fff;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Activar</button>
+    <div class="feature-card">
+      <div class="feature-icon">🔌</div>
+      <h3>MCP Servers</h3>
+      <p>Compatible con Kilo.ai, Cline, Copilot Agent y Claude. Conecta cualquier servidor MCP externo.</p>
     </div>
   </div>
-</div>
-</div>
+</section>
 
 <!-- PROVIDERS -->
-<div id="providers">
-<div class="section">
-  <p class="s-label">Proveedores</p>
-  <h2 class="s-title">Elige tu IA</h2>
-  <p class="s-sub">4 opciones gratuitas. Conecta la que prefieras.</p>
+<section class="providers" id="providers">
+  <div class="section-label" style="text-align:center">Proveedores</div>
+  <h2 class="section-title">Tu IA, tu elección</h2>
+  <p style="color:var(--muted)">6 proveedores soportados — 3 completamente gratis</p>
   <div class="providers-grid">
-    <div class="provider-card"><div class="prov-icon">🟢</div><div class="prov-name">Gemini</div><div class="prov-model">gemini-2.0-flash</div><span class="prov-badge free">✓ Gratis</span></div>
-    <div class="provider-card"><div class="prov-icon">⚡</div><div class="prov-name">Groq</div><div class="prov-model">llama-3.3-70b</div><span class="prov-badge free">✓ Gratis</span></div>
-    <div class="provider-card"><div class="prov-icon">🦙</div><div class="prov-name">Ollama</div><div class="prov-model">llama3 · mistral · codellama</div><span class="prov-badge local">🏠 Local</span></div>
-    <div class="provider-card"><div class="prov-icon">🖥</div><div class="prov-name">LM Studio</div><div class="prov-model">cualquier modelo GGUF</div><span class="prov-badge local">🏠 Local</span></div>
-    <div class="provider-card"><div class="prov-icon">🌐</div><div class="prov-name">OpenRouter</div><div class="prov-model">100+ modelos</div><span class="prov-badge free">✓ Gratis/Pago</span></div>
-    <div class="provider-card"><div class="prov-icon">🟣</div><div class="prov-name">OpenAI</div><div class="prov-model">gpt-4o</div><span class="prov-badge paid">💳 De pago</span></div>
+    <span class="provider-pill">🟢 Gemini 2.0 Flash<span class="pill-free">GRATIS</span></span>
+    <span class="provider-pill">⚡ Groq Llama 3.3<span class="pill-free">GRATIS</span></span>
+    <span class="provider-pill">🦙 Ollama Local<span class="pill-free">LOCAL</span></span>
+    <span class="provider-pill">🖥 LM Studio<span class="pill-free">LOCAL</span></span>
+    <span class="provider-pill">🌐 OpenRouter<span class="pill-paid">100+ modelos</span></span>
+    <span class="provider-pill">🟣 OpenAI GPT-4o<span class="pill-paid">PAGO</span></span>
   </div>
-</div>
-</div>
+</section>
+
+<!-- SKILLS -->
+<section class="skills-section">
+  <div class="section-label">Agent Skills</div>
+  <h2 class="section-title">6 skills activos</h2>
+  <p style="color:var(--muted)">Reglas y patrones que guían la generación de código</p>
+  <div class="skills-grid">
+    <span class="skill-chip">🖥 <span class="trigger">/web-interface-guidelines</span></span>
+    <span class="skill-chip">🔐 <span class="trigger">/security-best-practices</span></span>
+    <span class="skill-chip">⚛️ <span class="trigger">/react-nextjs</span></span>
+    <span class="skill-chip">🎨 <span class="trigger">/frontend-design</span></span>
+    <span class="skill-chip">🧪 <span class="trigger">/backend-testing</span></span>
+    <span class="skill-chip">🔌 <span class="trigger">/vscode-extension-builder</span></span>
+  </div>
+</section>
 
 <!-- INSTALL -->
-<div id="install">
-<div class="section">
-  <p class="s-label">Instalación</p>
-  <h2 class="s-title">En 3 pasos</h2>
-  <p class="s-sub">Listo en menos de 3 minutos desde cero.</p>
+<section class="install-section" id="install">
+  <div class="section-label">Instalación</div>
+  <h2 class="section-title">Listo en 60 segundos</h2>
   <div class="install-steps">
-    <div class="install-card"><div class="install-num">01</div><div class="install-icon">↓</div><div class="install-title">Descarga el .vsix</div><div class="install-desc">Ve a <a href="https://github.com/luisitoys12/luxcode-ai/releases" style="color:#a78bfa">Releases en GitHub</a> y descarga el archivo <code>.vsix</code> más reciente.</div></div>
-    <div class="install-card"><div class="install-num">02</div><div class="install-icon">📦</div><div class="install-title">Instala en VS Code</div><div class="install-desc">Extensions <code>Ctrl+Shift+X</code> → menú <code>···</code> → <strong>Install from VSIX</strong></div></div>
-    <div class="install-card"><div class="install-num">03</div><div class="install-icon">🔑</div><div class="install-title">Configura tu API Key</div><div class="install-desc">Abre el panel ⚡ en la barra lateral, selecciona tu proveedor e ingresa tu key. ¡Listo!</div></div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <h4>Descarga el .vsix</h4>
+      <p>Desde GitHub Releases o VS Code Marketplace</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h4>Instala en VS Code</h4>
+      <p>Extensions → ··· → Install from VSIX</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h4>Abre el panel ⚡</h4>
+      <p>Barra lateral → ⚡ LuxCode AI</p>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h4>Añade tu API Key</h4>
+      <p>Gemini gratis en aistudio.google.com</p>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <h4>¡Genera!</h4>
+      <p>Elige tipo de proyecto y describe lo que quieres</p>
+    </div>
   </div>
-</div>
-</div>
+  <div class="code-block">ext install luisitoys12.luxcode-ai</div>
+</section>
 
+<!-- FOOTER -->
 <footer>
-  <div class="footer-logo">⚡ LuxCode AI</div>
-  <p style="font-size:13px;color:var(--muted2)">El generador de apps con IA más poderoso para VS Code</p>
-  <div class="footer-links">
-    <a href="https://github.com/luisitoys12/luxcode-ai">GitHub</a>
-    <a href="https://github.com/luisitoys12/luxcode-ai/releases">Releases</a>
-    <a href="https://github.com/luisitoys12/luxcode-ai/blob/main/CHANGELOG.md">Changelog</a>
-    <a href="https://github.com/luisitoys12/luxcode-ai/issues">Reportar bug</a>
-  </div>
-  <div class="footer-copy">MIT License · Hecho con ❤️ por <a href="https://github.com/luisitoys12" style="color:#a78bfa">@luisitoys12</a> · Irapuato, México 🇲🇽</div>
+  <p style="margin-bottom:12px">
+    <a href="https://github.com/luisitoys12/luxcode-ai" target="_blank" rel="noopener">GitHub</a> ·
+    <a href="https://marketplace.visualstudio.com/items?itemName=luisitoys12.luxcode-ai" target="_blank" rel="noopener">Marketplace</a> ·
+    <a href="https://github.com/luisitoys12/luxcode-ai/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Changelog</a> ·
+    <a href="https://github.com/luisitoys12/luxcode-ai/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+  </p>
+  <p>⚡ LuxCode AI v0.4.0 · Open Source MIT · Hecho con ❤️ en Irapuato, México 🇲🇽</p>
 </footer>
 
-<script>
-// TERMINAL TABS
-const tabContent = {
-  web: `<span class="t-comment">// 🌐 Generando Landing Page para radio musical...</span><br><span class="t-purple">const</span> <span class="t-blue">page</span> = <span class="t-purple">await</span> <span class="t-blue">luxcode</span>.<span class="t-green">generate</span>({<br>&nbsp;&nbsp;<span class="t-orange">type</span>: <span class="t-string">'web'</span>, <span class="t-orange">subtype</span>: <span class="t-string">'Radio/Streaming'</span>,<br>&nbsp;&nbsp;<span class="t-orange">model</span>: <span class="t-string">'gemini-2.0-flash'</span>,<br>&nbsp;&nbsp;<span class="t-orange">desc</span>: <span class="t-string">'Radio Estación KUS con reproductor y chat'</span><br>});<br><br><span class="t-comment">// ✅ Archivos generados en luxcode-radio-2026/</span><br><span class="t-comment">//    index.html · style.css · script.js</span><span class="t-cursor"></span>`,
-  mobile: `<span class="t-comment">// 📱 Generando App Móvil con React Native...</span><br><span class="t-purple">const</span> <span class="t-blue">app</span> = <span class="t-purple">await</span> <span class="t-blue">luxcode</span>.<span class="t-green">generate</span>({<br>&nbsp;&nbsp;<span class="t-orange">type</span>: <span class="t-string">'mobile'</span>, <span class="t-orange">subtype</span>: <span class="t-string">'React Native'</span>,<br>&nbsp;&nbsp;<span class="t-orange">model</span>: <span class="t-string">'groq/llama-3.3-70b'</span>,<br>&nbsp;&nbsp;<span class="t-orange">desc</span>: <span class="t-string">'App de tareas con modo oscuro'</span><br>});<br><br><span class="t-comment">// ✅ Proyecto generado: App.js · styles.js · README</span><span class="t-cursor"></span>`,
-  desktop: `<span class="t-comment">// 🖥 Generando App de Escritorio con Tauri...</span><br><span class="t-purple">const</span> <span class="t-blue">app</span> = <span class="t-purple">await</span> <span class="t-blue">luxcode</span>.<span class="t-green">generate</span>({<br>&nbsp;&nbsp;<span class="t-orange">type</span>: <span class="t-string">'desktop'</span>, <span class="t-orange">subtype</span>: <span class="t-string">'Tauri (Rust + Web)'</span>,<br>&nbsp;&nbsp;<span class="t-orange">model</span>: <span class="t-string">'ollama/codellama'</span>,<br>&nbsp;&nbsp;<span class="t-orange">desc</span>: <span class="t-string">'Editor de notas offline con busqueda'</span><br>});<br><br><span class="t-comment">// ✅ Generado: src/main.rs · index.html · Cargo.toml</span><span class="t-cursor"></span>`
-};
-function switchTab(el, key) {
-  document.querySelectorAll('.t-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('termBody').innerHTML = tabContent[key];
-}
-
-// MINI CHAT
-let GEMINI_KEY = '';
-function activateChat() {
-  const k = document.getElementById('chatApiKey').value.trim();
-  if (!k) return;
-  GEMINI_KEY = k;
-  document.getElementById('chatKeyArea').innerHTML = '<span style="color:#4ade80;font-size:12px">✅ Chat activado con Gemini</span>';
-  addMsg('ai', '¡Perfecto! Ya tengo tu API Key. ¿En qué te puedo ayudar? Puedo generar código, explicar conceptos, o ayudarte a planear tu próxima app 🚀');
-}
-async function sendChat() {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  if (!text) return;
-  if (!GEMINI_KEY) { addMsg('ai', '⚠️ Primero activa el chat con tu Gemini API Key (campo de abajo).'); return; }
-  input.value = '';
-  addMsg('user', text);
-  showTyping();
-  try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: `Eres LuxCode AI, un asistente experto en desarrollo web, móvil y de escritorio. Responde de forma concisa y útil en español.\n\nPregunta: ${text}` }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 512 }
-      })
-    });
-    const data = await res.json();
-    removeTyping();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No pude generar respuesta.';
-    addMsg('ai', reply);
-  } catch(e) {
-    removeTyping();
-    addMsg('ai', '❌ Error al conectar con Gemini. Verifica tu API Key.');
-  }
-}
-function addMsg(role, text) {
-  const msgs = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = `msg ${role === 'user' ? 'user' : ''}`;
-  div.innerHTML = `<div class="msg-avatar ${role === 'ai' ? 'ai' : 'user-av'}">${role === 'ai' ? '⚡' : '👤'}</div><div class="msg-bubble ${role === 'ai' ? 'ai' : 'user'}">${text.replace(/\n/g,'<br>')}</div>`;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-function showTyping() {
-  const msgs = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = 'msg'; div.id = 'typingIndicator';
-  div.innerHTML = `<div class="msg-avatar ai">⚡</div><div class="msg-bubble ai"><div class="typing"><span></span><span></span><span></span></div></div>`;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-function removeTyping() {
-  const t = document.getElementById('typingIndicator');
-  if (t) t.remove();
-}
-</script>
 </body>
 </html>
