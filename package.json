@@ -17,7 +17,7 @@
   "keywords": ["ai", "agent", "mcp", "web", "mobile", "desktop", "api", "gemini", "openai", "ollama", "groq", "codegen", "generator"],
   "activationEvents": [],
   "main": "./out/extension.js",
-  "icon": "media/sidebar-icon.svg",
+  "icon": "media/icon.png",
   "contributes": {
     "commands": [
       { "command": "luxcode.openPanel", "title": "LuxCode AI: Abrir Panel" },
