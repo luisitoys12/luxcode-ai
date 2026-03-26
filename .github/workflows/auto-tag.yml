@@ -1,0 +1,63 @@
+name: 🏷️ Auto-Tag & Release v0.4.0
+
+# Este workflow crea el tag v0.4.0 en cuanto llega a main
+# y dispara automáticamente release.yml
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'CHANGELOG.md'
+      - 'package.json'
+
+permissions:
+  contents: write
+
+jobs:
+  auto-tag:
+    name: 🏷️ Crear tag desde package.json
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Leer versión de package.json
+        id: pkg
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=v${VERSION}" >> $GITHUB_OUTPUT
+          echo "VERSION_PLAIN=${VERSION}" >> $GITHUB_OUTPUT
+          echo "🏷️ Versión detectada: v${VERSION}"
+
+      - name: Verificar si el tag ya existe
+        id: check
+        run: |
+          if git ls-remote --tags origin | grep -q "refs/tags/${{ steps.pkg.outputs.VERSION }}$"; then
+            echo "EXISTS=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Tag ${{ steps.pkg.outputs.VERSION }} ya existe — skip"
+          else
+            echo "EXISTS=false" >> $GITHUB_OUTPUT
+            echo "✅ Tag ${{ steps.pkg.outputs.VERSION }} es nuevo — crear"
+          fi
+
+      - name: Crear y pushear tag
+        if: steps.check.outputs.EXISTS == 'false'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a ${{ steps.pkg.outputs.VERSION }} \
+            -m "⚡ LuxCode AI ${{ steps.pkg.outputs.VERSION }} — auto-tagged by CI"
+          git push origin ${{ steps.pkg.outputs.VERSION }}
+          echo "## 🏷️ Auto-Tag" >> $GITHUB_STEP_SUMMARY
+          echo "| Campo | Valor |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| Tag | ${{ steps.pkg.outputs.VERSION }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Disparó | release.yml ✅ |" >> $GITHUB_STEP_SUMMARY
+          echo "| Release | [Ver en GitHub](https://github.com/luisitoys12/luxcode-ai/releases) |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Skip info
+        if: steps.check.outputs.EXISTS == 'true'
+        run: |
+          echo "## 🏷️ Auto-Tag — Skip" >> $GITHUB_STEP_SUMMARY
+          echo "Tag ${{ steps.pkg.outputs.VERSION }} ya existía. No se crea duplicate." >> $GITHUB_STEP_SUMMARY
