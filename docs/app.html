@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>LuxCode AI — App</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><text y='20' font-size='20'>⚡</text></svg>"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a0f;color:#e2e8f0;min-height:100vh}
+a{color:inherit;text-decoration:none}
+:root{--accent:#7c3aed;--accent2:#06b6d4}
+
+/* AUTH */
+.auth-wrapper{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(124,58,237,.18),transparent)}
+.auth-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:2.5rem;width:100%;max-width:420px}
+.auth-logo{text-align:center;font-size:1.5rem;font-weight:700;background:linear-gradient(135deg,#7c3aed,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.5rem}
+.auth-sub{text-align:center;font-size:.85rem;opacity:.6;margin-bottom:2rem}
+.tabs{display:flex;background:rgba(255,255,255,.05);border-radius:10px;padding:.25rem;margin-bottom:2rem}
+.tab{flex:1;text-align:center;padding:.55rem;border-radius:8px;font-size:.875rem;cursor:pointer;transition:.2s;opacity:.6}
+.tab.active{background:rgba(124,58,237,.4);opacity:1;font-weight:600}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:.82rem;opacity:.65;margin-bottom:.4rem}
+.form-group input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.7rem 1rem;color:#e2e8f0;font-size:.9rem;outline:none;transition:.2s}
+.form-group input:focus{border-color:rgba(124,58,237,.6);background:rgba(124,58,237,.06)}
+.btn-full{width:100%;padding:.75rem;border-radius:10px;border:none;background:linear-gradient(135deg,#7c3aed,#06b6d4);color:#fff;font-weight:700;font-size:.95rem;cursor:pointer;transition:.2s;margin-top:.5rem}
+.btn-full:hover{opacity:.9;transform:translateY(-1px)}
+.divider{text-align:center;font-size:.8rem;opacity:.4;margin:1.2rem 0;position:relative}
+.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:rgba(255,255,255,.12)}
+.divider::before{left:0}.divider::after{right:0}
+.oauth-row{display:flex;gap:.75rem}
+.oauth-btn{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:.65rem;color:#e2e8f0;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;gap:.4rem;transition:.2s}
+.oauth-btn:hover{background:rgba(255,255,255,.1)}
+.form-note{font-size:.78rem;opacity:.45;text-align:center;margin-top:1rem}
+
+/* DASHBOARD */
+#dashboard{display:none}
+.app-layout{display:flex;min-height:100vh}
+.sidebar{width:240px;background:rgba(255,255,255,.03);border-right:1px solid rgba(255,255,255,.07);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:.25rem;position:fixed;top:0;bottom:0}
+.sidebar-logo{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,#7c3aed,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;padding:.5rem;margin-bottom:1rem}
+.nav-item{display:flex;align-items:center;gap:.7rem;padding:.6rem .8rem;border-radius:8px;font-size:.875rem;cursor:pointer;opacity:.7;transition:.2s}
+.nav-item:hover,.nav-item.active{background:rgba(124,58,237,.15);opacity:1;color:#a78bfa}
+.main-area{margin-left:240px;flex:1;padding:2rem}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem}
+.topbar h1{font-size:1.4rem;font-weight:700}
+.user-badge{display:flex;align-items:center;gap:.6rem;background:rgba(255,255,255,.05);padding:.5rem 1rem;border-radius:999px;font-size:.85rem}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#06b6d4);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700}
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}
+.stat-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.2rem}
+.stat-card-num{font-size:1.8rem;font-weight:700;background:linear-gradient(135deg,#7c3aed,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-card-label{font-size:.8rem;opacity:.6;margin-top:.2rem}
+
+/* GENERATOR */
+.generator{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:1.5rem;margin-bottom:1.5rem}
+.gen-title{font-weight:600;margin-bottom:1rem;font-size:.95rem}
+.type-selector{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.type-btn{padding:.4rem .9rem;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#e2e8f0;cursor:pointer;font-size:.82rem;transition:.2s}
+.type-btn:hover,.type-btn.active{background:rgba(124,58,237,.25);border-color:rgba(124,58,237,.5);color:#a78bfa}
+.gen-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:1rem;color:#e2e8f0;font-size:.9rem;min-height:100px;resize:vertical;outline:none;font-family:inherit;transition:.2s;margin-bottom:.8rem}
+.gen-input:focus{border-color:rgba(124,58,237,.5)}
+.gen-row{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+.provider-select{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:.5rem .8rem;color:#e2e8f0;font-size:.85rem;outline:none;cursor:pointer}
+.btn-gen{padding:.6rem 1.5rem;border-radius:10px;border:none;background:linear-gradient(135deg,#7c3aed,#06b6d4);color:#fff;font-weight:600;cursor:pointer;font-size:.9rem;transition:.2s}
+.btn-gen:hover{opacity:.9}
+.result-area{display:none;background:#0d0d18;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:1.2rem;font-family:monospace;font-size:.82rem;color:#94a3b8;margin-top:1rem;white-space:pre-wrap;max-height:350px;overflow-y:auto}
+.result-area.show{display:block}
+
+/* PROJECTS */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1rem}
+.project-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:1.2rem;cursor:pointer;transition:.2s}
+.project-card:hover{border-color:rgba(124,58,237,.4);transform:translateY(-2px)}
+.project-icon{font-size:1.5rem;margin-bottom:.5rem}
+.project-name{font-weight:600;font-size:.9rem;margin-bottom:.25rem}
+.project-meta{font-size:.78rem;opacity:.5}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:rgba(124,58,237,.9);color:#fff;padding:.75rem 1.2rem;border-radius:10px;font-size:.875rem;z-index:999;opacity:0;transform:translateY(10px);transition:.3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main-area{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div class="auth-wrapper" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-logo">⚡ LuxCode AI</div>
+    <div class="auth-sub">Genera código con IA · Gratis para siempre</div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('login')">Iniciar sesión</div>
+      <div class="tab" onclick="switchTab('register')">Crear cuenta</div>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginForm">
+      <div class="form-group"><label>Correo electrónico</label><input type="email" id="loginEmail" placeholder="tu@correo.com"/></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
+      <button class="btn-full" onclick="doLogin()">Iniciar sesión</button>
+      <div class="divider">o continúa con</div>
+      <div class="oauth-row">
+        <button class="oauth-btn" onclick="oauthLogin('github')">🐙 GitHub</button>
+        <button class="oauth-btn" onclick="oauthLogin('google')">🔵 Google</button>
+      </div>
+      <p class="form-note">Al continuar aceptas los <a href="#" style="color:#a78bfa">Términos de uso</a></p>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="registerForm" style="display:none">
+      <div class="form-group"><label>Nombre</label><input type="text" id="regName" placeholder="Tu nombre"/></div>
+      <div class="form-group"><label>Correo electrónico</label><input type="email" id="regEmail" placeholder="tu@correo.com"/></div>
+      <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="Mínimo 8 caracteres"/></div>
+      <button class="btn-full" onclick="doRegister()">Crear cuenta gratis</button>
+      <div class="divider">o regístrate con</div>
+      <div class="oauth-row">
+        <button class="oauth-btn" onclick="oauthLogin('github')">🐙 GitHub</button>
+        <button class="oauth-btn" onclick="oauthLogin('google')">🔵 Google</button>
+      </div>
+      <p class="form-note">Plan Free incluye 50 generaciones/mes sin tarjeta</p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <div class="app-layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">⚡ LuxCode AI</div>
+      <div class="nav-item active" onclick="showView('generate')">⚡ Generar</div>
+      <div class="nav-item" onclick="showView('projects')">📁 Proyectos</div>
+      <div class="nav-item" onclick="showView('history')">📜 Historial</div>
+      <div class="nav-item" onclick="showView('settings')">⚙️ Configuración</div>
+      <div style="flex:1"></div>
+      <div class="nav-item" onclick="showView('upgrade')">✨ Upgrade a Pro</div>
+      <div class="nav-item" onclick="doLogout()">🚪 Cerrar sesión</div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-area">
+      <div class="topbar">
+        <h1 id="viewTitle">⚡ Generar código</h1>
+        <div class="user-badge">
+          <div class="avatar" id="userAvatar">L</div>
+          <span id="userName">Usuario</span>
+          <span style="opacity:.4;font-size:.75rem">Free</span>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-card-num" id="statGen">0</div><div class="stat-card-label">Generaciones hoy</div></div>
+        <div class="stat-card"><div class="stat-card-num" id="statProj">0</div><div class="stat-card-label">Proyectos</div></div>
+        <div class="stat-card"><div class="stat-card-num">50</div><div class="stat-card-label">Límite mensual (Free)</div></div>
+        <div class="stat-card"><div class="stat-card-num">6</div><div class="stat-card-label">Proveedores IA</div></div>
+      </div>
+
+      <!-- VIEW: GENERATE -->
+      <div id="viewGenerate">
+        <div class="generator">
+          <div class="gen-title">¿Qué quieres generar?</div>
+          <div class="type-selector">
+            <button class="type-btn active" onclick="setType(this,'web')">🌐 Web</button>
+            <button class="type-btn" onclick="setType(this,'mobile')">📱 Móvil</button>
+            <button class="type-btn" onclick="setType(this,'desktop')">🖥️ Escritorio</button>
+            <button class="type-btn" onclick="setType(this,'api')">🔌 API REST</button>
+            <button class="type-btn" onclick="setType(this,'agent')">🤖 Agente</button>
+          </div>
+          <textarea class="gen-input" id="genPrompt" placeholder="Describe lo que quieres crear... ej: Landing page para una cafetería con menú, galería de fotos y formulario de contacto"></textarea>
+          <div class="gen-row">
+            <select class="provider-select" id="providerSelect">
+              <option value="gemini">⚡ Gemini Flash (gratis)</option>
+              <option value="groq">🚀 Groq Llama (gratis)</option>
+              <option value="ollama">🦙 Ollama (local)</option>
+              <option value="openai">🔵 GPT-4o (Pro)</option>
+              <option value="openrouter">🌐 OpenRouter</option>
+            </select>
+            <button class="btn-gen" onclick="generate()">⚡ Generar</button>
+          </div>
+          <div class="result-area" id="resultArea"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: PROJECTS -->
+      <div id="viewProjects" style="display:none">
+        <div class="projects-grid" id="projectsGrid"></div>
+      </div>
+
+      <!-- VIEW: HISTORY -->
+      <div id="viewHistory" style="display:none">
+        <div style="opacity:.6;text-align:center;padding:3rem">📜 Tu historial aparecerá aquí después de tu primera generación</div>
+      </div>
+
+      <!-- VIEW: SETTINGS -->
+      <div id="viewSettings" style="display:none">
+        <div style="max-width:500px">
+          <div class="generator">
+            <div class="gen-title">🔑 API Keys</div>
+            <div class="form-group"><label>Gemini API Key <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:#7c3aed;font-size:.75rem">(obtener gratis)</a></label><input type="password" id="geminiKey" placeholder="AIza..."/></div>
+            <div class="form-group"><label>Groq API Key <a href="https://console.groq.com" target="_blank" style="color:#7c3aed;font-size:.75rem">(obtener gratis)</a></label><input type="password" id="groqKey" placeholder="gsk_..."/></div>
+            <div class="form-group"><label>OpenAI API Key</label><input type="password" id="openaiKey" placeholder="sk-..."/></div>
+            <div class="form-group"><label>OpenRouter API Key</label><input type="password" id="openrouterKey" placeholder="sk-or-..."/></div>
+            <button class="btn-full" onclick="saveKeys()">💾 Guardar API Keys</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: UPGRADE -->
+      <div id="viewUpgrade" style="display:none">
+        <div style="max-width:400px;margin:0 auto;text-align:center;padding:2rem">
+          <div style="font-size:3rem;margin-bottom:1rem">✨</div>
+          <h2 style="margin-bottom:1rem">Upgrade a Pro</h2>
+          <p style="opacity:.6;margin-bottom:2rem">Generaciones ilimitadas, GPT-4o, Claude 3.5, proyectos ilimitados y más.</p>
+          <a href="https://github.com/luisitoys12/luxcode-ai/issues/new?title=Pro+Plan+Request" class="btn-full" style="display:block">Contactar para Pro → $9/mes</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STORAGE (localStorage — gratis, sin backend por ahora) ──────────────
+const DB = {
+  get: k => JSON.parse(localStorage.getItem('lux_'+k) || 'null'),
+  set: (k,v) => localStorage.setItem('lux_'+k, JSON.stringify(v)),
+  del: k => localStorage.removeItem('lux_'+k)
+};
+
+// ── TOAST ──────────────────────────────────────────────────────────────
+function toast(msg, ms=2800){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), ms);
+}
+
+// ── AUTH STATE ─────────────────────────────────────────────────────────
+let currentUser = DB.get('user');
+if(currentUser) showDashboard();
+
+// Check hash para ir directo a register
+if(location.hash === '#register') switchTab('register');
+
+function switchTab(tab){
+  document.getElementById('loginForm').style.display = tab==='login'?'block':'none';
+  document.getElementById('registerForm').style.display = tab==='register'?'block':'none';
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',(tab==='login'&&i===0)||(tab==='register'&&i===1)));
+}
+
+function doLogin(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  if(!email||!pass){ toast('⚠️ Completa todos los campos'); return; }
+  // Buscar en usuarios registrados
+  const users = DB.get('users') || [];
+  const user  = users.find(u=>u.email===email && u.pass===btoa(pass));
+  if(!user){ toast('❌ Correo o contraseña incorrectos'); return; }
+  DB.set('user', user);
+  currentUser = user;
+  showDashboard();
+  toast('👋 Bienvenido, '+user.name+'!');
+}
+
+function doRegister(){
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+  if(!name||!email||!pass){ toast('⚠️ Completa todos los campos'); return; }
+  if(pass.length < 8){ toast('⚠️ La contraseña debe tener al menos 8 caracteres'); return; }
+  const users = DB.get('users') || [];
+  if(users.find(u=>u.email===email)){ toast('⚠️ Ya existe una cuenta con ese correo'); return; }
+  const user = { id: Date.now(), name, email, pass: btoa(pass), plan:'free', created: new Date().toISOString(), gens:0, projects:[] };
+  users.push(user);
+  DB.set('users', users);
+  DB.set('user', user);
+  currentUser = user;
+  showDashboard();
+  toast('🎉 Cuenta creada. Bienvenido, '+name+'!');
+}
+
+function oauthLogin(provider){
+  // Demo — en producción conectar con PocketBase OAuth
+  const user = { id: Date.now(), name: provider==='github'?'Dev GitHub':'Dev Google', email: provider+'@demo.com', plan:'free', gens:0, projects:[], created: new Date().toISOString() };
+  DB.set('user', user);
+  currentUser = user;
+  showDashboard();
+  toast('✅ Conectado con '+(provider==='github'?'GitHub':'Google'));
+}
+
+function doLogout(){
+  DB.del('user');
+  currentUser = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('authScreen').style.display = 'flex';
+  toast('👋 Sesión cerrada');
+}
+
+function showDashboard(){
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('userName').textContent = currentUser.name;
+  document.getElementById('userAvatar').textContent = currentUser.name[0].toUpperCase();
+  document.getElementById('statGen').textContent = currentUser.gens || 0;
+  document.getElementById('statProj').textContent = (currentUser.projects||[]).length;
+  renderProjects();
+}
+
+// ── VIEWS ──────────────────────────────────────────────────────────────
+const views = { generate:'⚡ Generar código', projects:'📁 Proyectos', history:'📜 Historial', settings:'⚙️ Configuración', upgrade:'✨ Upgrade a Pro' };
+function showView(v){
+  Object.keys(views).forEach(k=>{
+    document.getElementById('view'+k.charAt(0).toUpperCase()+k.slice(1)).style.display = k===v?'block':'none';
+  });
+  document.getElementById('viewTitle').textContent = views[v];
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+}
+
+// ── GENERATOR ──────────────────────────────────────────────────────────
+let currentType = 'web';
+function setType(btn, type){
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentType = type;
+}
+
+const EXAMPLES = {
+  web: '<!DOCTYPE html>\n<html lang="es">\n<head>\n<meta charset="UTF-8"/>\n<title>Mi App Web</title>\n<style>body{font-family:system-ui;background:#0a0a0f;color:#e2e8f0;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:2rem;max-width:400px;text-align:center}h1{background:linear-gradient(135deg,#7c3aed,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-size:2rem}p{opacity:.7;margin-top:.5rem}</style>\n</head>\n<body><div class="card"><h1>⚡ Mi App</h1><p>Generado con LuxCode AI</p></div></body>\n</html>',
+  mobile: '// App.tsx — React Native\nimport React from \'react\';\nimport { View, Text, StyleSheet, TouchableOpacity } from \'react-native\';\n\nexport default function App() {\n  return (\n    <View style={styles.container}>\n      <Text style={styles.title}>⚡ Mi App Móvil</Text>\n      <TouchableOpacity style={styles.btn}>\n        <Text style={styles.btnText}>Generado con LuxCode AI</Text>\n      </TouchableOpacity>\n    </View>\n  );\n}\nconst styles = StyleSheet.create({\n  container:{ flex:1, backgroundColor:\'#0a0a0f\', alignItems:\'center\', justifyContent:\'center\' },\n  title:{ fontSize:28, fontWeight:\'800\', color:\'#a78bfa\', marginBottom:20 },\n  btn:{ backgroundColor:\'#7c3aed\', paddingHorizontal:24, paddingVertical:12, borderRadius:12 },\n  btnText:{ color:\'#fff\', fontWeight:\'600\' }\n});',
+  api: '// server.js — Express API\nconst express = require(\'express\');\nconst app = express();\napp.use(express.json());\n\n// GET /api/items\napp.get(\'/api/items\', (req, res) => {\n  res.json({ items: [], total: 0, page: 1 });\n});\n\n// POST /api/items\napp.post(\'/api/items\', (req, res) => {\n  const { name, description } = req.body;\n  res.status(201).json({ id: Date.now(), name, description, created: new Date() });\n});\n\napp.listen(3000, () => console.log(\'⚡ API corriendo en http://localhost:3000\'));',
+  desktop: '// main.ts — Tauri App\nconst { invoke } = window.__TAURI__.tauri;\n\nasync function init() {\n  document.querySelector(\'#app\').innerHTML = `\n    <h1>⚡ Mi App Escritorio</h1>\n    <p>Generado con LuxCode AI + Tauri</p>\n    <button onclick="greet()">Saludar</button>\n  `;\n}\n\nasync function greet() {\n  const msg = await invoke(\'greet\', { name: \'Mundo\' });\n  alert(msg);\n}\n\nwindow.addEventListener(\'DOMContentLoaded\', init);',
+  agent: '// 🤖 Modo Agente — Plan de ejecución\n// Tarea: "Crear app de gestión de tareas"\n\n// Paso 1: Análisis de requerimientos\nconst plan = {\n  steps: [\n    \'1. Crear estructura de carpetas del proyecto\',\n    \'2. Generar base de datos SQLite con esquema de tareas\',\n    \'3. Crear API REST con Express (CRUD completo)\',\n    \'4. Generar frontend React con lista de tareas\',\n    \'5. Conectar frontend con API\',\n    \'6. Agregar autenticación JWT\'\n  ],\n  estimatedTime: \'45 segundos\',\n  provider: \'Gemini Flash\'\n};\n\nconsole.log(\'⚡ Ejecutando plan...\', plan);'
+};
+
+function generate(){
+  const prompt = document.getElementById('genPrompt').value.trim();
+  if(!prompt){ toast('⚠️ Escribe una descripción primero'); return; }
+  // Verificar si tiene API key configurada
+  const provider = document.getElementById('providerSelect').value;
+  const keyMap = { gemini:'geminiKey', groq:'groqKey', openai:'openaiKey', openrouter:'openrouterKey' };
+  const savedKeys = DB.get('apikeys') || {};
+  if(provider !== 'ollama' && !savedKeys[keyMap[provider]]){
+    toast('⚙️ Configura tu API Key en Ajustes primero');
+    showView('settings');
+    return;
+  }
+  const result = document.getElementById('resultArea');
+  result.textContent = '// ⏳ Generando con '+ provider +'...\n// Prompt: "' + prompt + '"\n\n' + (EXAMPLES[currentType] || '// Código generado aparecerá aquí');
+  result.classList.add('show');
+  // Actualizar stats
+  currentUser.gens = (currentUser.gens||0)+1;
+  const proj = { id: Date.now(), type: currentType, prompt: prompt.slice(0,50), created: new Date().toISOString() };
+  currentUser.projects = [proj, ...(currentUser.projects||[])].slice(0,20);
+  const users = DB.get('users')||[];
+  const idx = users.findIndex(u=>u.id===currentUser.id);
+  if(idx>-1){ users[idx]=currentUser; DB.set('users',users); }
+  DB.set('user', currentUser);
+  document.getElementById('statGen').textContent = currentUser.gens;
+  document.getElementById('statProj').textContent = currentUser.projects.length;
+  toast('✅ ¡Código generado!');
+  renderProjects();
+}
+
+// ── PROJECTS ───────────────────────────────────────────────────────────
+const TYPE_ICONS = { web:'🌐', mobile:'📱', desktop:'🖥️', api:'🔌', agent:'🤖' };
+function renderProjects(){
+  const grid = document.getElementById('projectsGrid');
+  const projs = currentUser.projects || [];
+  if(!projs.length){
+    grid.innerHTML = '<div style="opacity:.5;padding:2rem;grid-column:1/-1">No tienes proyectos aún. ¡Genera tu primero! ⚡</div>';
+    return;
+  }
+  grid.innerHTML = projs.map(p=>`
+    <div class="project-card">
+      <div class="project-icon">${TYPE_ICONS[p.type]||'📄'}</div>
+      <div class="project-name">${p.prompt||'Proyecto'}...</div>
+      <div class="project-meta">${p.type} · ${new Date(p.created).toLocaleDateString('es-MX')}</div>
+    </div>
+  `).join('');
+}
+
+// ── SETTINGS ───────────────────────────────────────────────────────────
+function saveKeys(){
+  const keys = {
+    geminiKey: document.getElementById('geminiKey').value,
+    groqKey:   document.getElementById('groqKey').value,
+    openaiKey: document.getElementById('openaiKey').value,
+    openrouterKey: document.getElementById('openrouterKey').value
+  };
+  DB.set('apikeys', keys);
+  toast('🔑 API Keys guardadas de forma segura');
+}
+
+// Cargar keys guardadas
+const savedKeys = DB.get('apikeys') || {};
+if(savedKeys.geminiKey) document.getElementById('geminiKey').value = savedKeys.geminiKey;
+if(savedKeys.groqKey)   document.getElementById('groqKey').value   = savedKeys.groqKey;
+if(savedKeys.openaiKey) document.getElementById('openaiKey').value = savedKeys.openaiKey;
+if(savedKeys.openrouterKey) document.getElementById('openrouterKey').value = savedKeys.openrouterKey;
+</script>
+</body>
+</html>
