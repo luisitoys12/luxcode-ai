@@ -1,0 +1,31 @@
+name: 🛡️ Security Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Cada lunes a las 9am UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  security-audit:
+    name: 🛡️ Security Best Practices
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🛡️ Run security audit
+        run: |
+          chmod +x .agent/skills/security-best-practices/audit.sh
+          bash .agent/skills/security-best-practices/audit.sh
+
+      - name: 📊 Resumen
+        if: always()
+        run: |
+          echo "## 🛡️ Security Audit" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Skill: \`security-best-practices\`" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
