@@ -14,11 +14,6 @@ export interface AgentTask {
   steps: AgentStep[];
 }
 
-/**
- * AgentService - Multi-step agentic task runner
- * Inspired by Kilo.ai, Cline, and GitHub Copilot Agent Mode
- * Breaks complex tasks into steps and executes them sequentially
- */
 export class AgentService {
   private ai: AIService;
 
@@ -27,53 +22,36 @@ export class AgentService {
   }
 
   async planTask(userGoal: string): Promise<AgentTask> {
-    const planPrompt = `Eres un agente de desarrollo de software. El usuario quiere:\n"${userGoal}"\n\nCrea un plan de ejecución con 3-6 pasos concretos. Responde ÚNICAMENTE con JSON:\n{\n  "steps": [\n    { "id": "step_1", "title": "Descripción del paso" },\n    ...\n  ]\n}\nSin markdown, sin explicaciones.`;
-
+    const planPrompt = `Eres un agente de desarrollo. El usuario quiere: "${userGoal}"\nCrea un plan con 3-6 pasos. Responde SOLO con JSON v\u00e1lido:\n{"steps":[{"id":"step_1","title":"descripcion"}]}`;
     const raw = await this.ai.rawPrompt(planPrompt);
     const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim();
-    const plan = JSON.parse(cleaned);
-
-    return {
-      description: userGoal,
-      steps: plan.steps.map((s: any) => ({ ...s, status: 'pending' as const }))
-    };
+    try {
+      const plan = JSON.parse(cleaned);
+      return { description: userGoal, steps: plan.steps.map((s: any) => ({ ...s, status: 'pending' as const })) };
+    } catch {
+      return { description: userGoal, steps: [{ id: 'step_1', title: 'Generar proyecto completo', status: 'pending' }] };
+    }
   }
 
-  async executeTask(
-    task: AgentTask,
-    onStepUpdate: (steps: AgentStep[]) => void
-  ): Promise<Record<string, string>> {
+  async executeTask(task: AgentTask, onStepUpdate: (steps: AgentStep[]) => void): Promise<Record<string, string>> {
     const allFiles: Record<string, string> = {};
-
     for (const step of task.steps) {
       step.status = 'running';
       onStepUpdate([...task.steps]);
-
       try {
-        const stepPrompt = `Eres un agente experto en desarrollo. Tarea global: "${task.description}"\n\nEjecutando paso: "${step.title}"\n\nGenera el código o archivos necesarios para este paso. Responde con JSON donde cada clave es el nombre del archivo y el valor es su contenido completo. Sin markdown.`;
+        const stepPrompt = `Tarea: "${task.description}"\nPaso actual: "${step.title}"\nGenera los archivos necesarios. Responde SOLO con JSON: {"filename.ext":"contenido"}`;
         const raw = await this.ai.rawPrompt(stepPrompt);
         const cleaned = raw.replace(/```json/g, '').replace(/```/g, '').trim();
-
-        try {
-          const files = JSON.parse(cleaned);
-          Object.assign(allFiles, files);
-          step.result = `✅ ${Object.keys(files).length} archivo(s) generado(s)`;
-        } catch {
-          // Si no es JSON, guardar como texto del step
-          step.result = '✅ Completado';
-        }
-
+        try { Object.assign(allFiles, JSON.parse(cleaned)); } catch { /* skip */ }
         step.status = 'done';
+        step.result = '\u2705 Completado';
       } catch (err: any) {
         step.status = 'error';
-        step.result = `❌ ${err.message}`;
+        step.result = `\u274c ${err.message}`;
       }
-
       onStepUpdate([...task.steps]);
-      // Pausa entre steps para no saturar la API
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 400));
     }
-
     return allFiles;
   }
 }
