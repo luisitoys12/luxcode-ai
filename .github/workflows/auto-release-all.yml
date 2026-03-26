@@ -18,13 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
+        with:
+          node-version: '20'
       - run: npm install
+      - run: npm install -g typescript @vscode/vsce
       - run: npm run compile
-      - run: npm install -g @vscode/vsce
       - run: npm version 0.1.0 --no-git-tag-version --allow-same-version
       - run: vsce package --no-dependencies --allow-missing-publisher
-      - name: Tag y Release v0.1.0-beta
+      - name: Tag v0.1.0-beta
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -38,16 +39,13 @@ jobs:
           files: "*.vsix"
           body: |
             ## ⚡ LuxCode AI v0.1.0-beta — Primera versión
-            ### Incluye
             - 🌐 Generador de páginas web (HTML+CSS+JS)
-            - Soporte Gemini 2.0 Flash (gratis) y OpenAI
-            - Panel lateral visual
+            - 🔑 Gemini 2.0 Flash (gratis) y OpenAI GPT-4o
+            - 🎨 Panel lateral visual en VS Code
 
-            ### Instalar
-            Descarga el `.vsix` abajo ↓ → VS Code → Extensions → `···` → **Install from VSIX**
+            **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
 
-            ### API Key gratis
-            Gemini: https://aistudio.google.com/app/apikey
+            **API Key gratis:** https://aistudio.google.com/app/apikey
 
   release-v020:
     name: 📦 v0.2.0
@@ -58,13 +56,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
+        with:
+          node-version: '20'
       - run: npm install
+      - run: npm install -g typescript @vscode/vsce
       - run: npm run compile
-      - run: npm install -g @vscode/vsce
       - run: npm version 0.2.0 --no-git-tag-version --allow-same-version
       - run: vsce package --no-dependencies --allow-missing-publisher
-      - name: Tag y Release v0.2.0
+      - name: Tag v0.2.0
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -78,15 +77,13 @@ jobs:
           files: "*.vsix"
           body: |
             ## ⚡ LuxCode AI v0.2.0
-            ### Nuevo
             - 📱 Apps Móviles (React Native, Flutter, Ionic)
             - 🖥 Apps Escritorio (Tauri, Electron, Neutralino.js)
             - ⚡ Groq Llama 3.3 70B (gratis, ultra rápido)
-            - 🦙 Ollama local (sin internet)
+            - 🦙 Ollama local (sin internet, 7 modelos)
             - 🌐 OpenRouter (100+ modelos)
 
-            ### Instalar
-            Descarga el `.vsix` abajo ↓ → VS Code → Extensions → `···` → **Install from VSIX**
+            **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
 
   release-v030:
     name: 📦 v0.3.0
@@ -97,13 +94,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20', cache: 'npm' }
+        with:
+          node-version: '20'
       - run: npm install
+      - run: npm install -g typescript @vscode/vsce
       - run: npm run compile
-      - run: npm install -g @vscode/vsce
       - run: npm version 0.3.0 --no-git-tag-version --allow-same-version
       - run: vsce package --no-dependencies --allow-missing-publisher
-      - name: Tag y Release v0.3.0
+      - name: Tag v0.3.0
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -117,15 +115,12 @@ jobs:
           files: "*.vsix"
           body: |
             ## ⚡ LuxCode AI v0.3.0 — La versión más poderosa
-            ### Nuevo
-            - 🤖 **Modo Agente** — tareas complejas multi-paso (como Kilo.ai, Cline)
-            - 🔌 **MCP Server** — conecta herramientas externas, compatible con Copilot/Claude
-            - 🔌 **Generador de APIs REST** con Node.js/Express
+            - 🤖 **Modo Agente** — tareas complejas multi-paso
+            - 🔌 **MCP Server** — compatible con Copilot, Claude, Cline
+            - 🔌 **Generador de APIs REST** Node.js/Express
             - 📄 AGENTS.md + llms.txt para contexto IA
             - 🦙 Qwen 2.5 Coder en Ollama
 
-            ### Instalar
-            Descarga el `.vsix` abajo ↓ → VS Code → Extensions → `···` → **Install from VSIX**
+            **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
 
-            ### Sitio web
-            https://luisitoys12.github.io/luxcode-ai
+            **Sitio web:** https://luisitoys12.github.io/luxcode-ai

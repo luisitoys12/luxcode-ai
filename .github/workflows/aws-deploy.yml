@@ -4,85 +4,66 @@ on:
   workflow_dispatch:
     inputs:
       deploy_target:
-        description: '\u00bfQu\u00e9 desplegar?'
+        description: '¿Qué desplegar?'
         required: true
         default: 'both'
         type: choice
         options:
-          - site        # Solo el sitio web (docs/)
-          - vsix        # Solo el .vsix
-          - both        # Ambos
-  push:
-    branches: [main]
-    paths:
-      - 'docs/**'
+          - site
+          - vsix
+          - both
 
 jobs:
   deploy-aws:
-    name: \u2601\ufe0f AWS S3 + CloudFront
+    name: ☁️ AWS S3 + CloudFront
     runs-on: ubuntu-latest
     steps:
-      - name: \ud83d\udce5 Checkout
-        uses: actions/checkout@v4
-
-      - name: \u26a1 Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+      - run: npm install
+      - run: npm install -g typescript @vscode/vsce
 
-      - name: \ud83d\udd27 Skills - Instalar dependencias
-        run: |
-          npm install
-          npm install -g @vscode/vsce
-
-      - name: \u2601\ufe0f Configurar AWS CLI
+      - name: ☁️ Configurar AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION || 'us-east-1' }}
 
-      - name: \ud83d\udda5 Deploy sitio web a S3
-        if: github.event.inputs.deploy_target == 'site' || github.event.inputs.deploy_target == 'both' || github.event_name == 'push'
+      - name: Deploy sitio a S3
+        if: github.event.inputs.deploy_target == 'site' || github.event.inputs.deploy_target == 'both'
         run: |
           aws s3 sync docs/ s3://${{ secrets.AWS_S3_BUCKET }}/site/ \
-            --delete \
-            --cache-control "max-age=86400" \
-            --exclude ".DS_Store"
-          echo "\u2705 Sitio web subido a S3"
+            --delete --cache-control "max-age=86400" --exclude ".DS_Store"
+          echo "✅ Sitio subido a S3"
 
-      - name: \ud83d\udce6 Compilar y subir .vsix a S3
+      - name: Compilar y subir .vsix a S3
         if: github.event.inputs.deploy_target == 'vsix' || github.event.inputs.deploy_target == 'both'
         run: |
           npm run compile
           vsce package --no-dependencies --allow-missing-publisher
           VSIX=$(ls *.vsix | head -1)
           VERSION=$(node -p "require('./package.json').version")
-          aws s3 cp $VSIX s3://${{ secrets.AWS_S3_BUCKET }}/releases/luxcode-ai-$VERSION.vsix \
-            --content-type "application/octet-stream" \
-            --metadata "version=$VERSION,project=luxcode-ai"
-          # Actualizar latest
+          aws s3 cp $VSIX s3://${{ secrets.AWS_S3_BUCKET }}/releases/luxcode-ai-$VERSION.vsix
           aws s3 cp $VSIX s3://${{ secrets.AWS_S3_BUCKET }}/releases/luxcode-ai-latest.vsix
-          echo "\u2705 .vsix subido a S3"
+          echo "✅ .vsix v$VERSION subido a S3"
 
-      - name: \ud83c\udf10 Invalidar cach\u00e9 CloudFront
-        if: secrets.AWS_CLOUDFRONT_ID != ''
+      - name: Invalidar CloudFront
+        if: env.AWS_CLOUDFRONT_ID != ''
         run: |
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.AWS_CLOUDFRONT_ID }} \
             --paths "/*"
-          echo "\u2705 Cach\u00e9 CloudFront invalidado"
         env:
           AWS_CLOUDFRONT_ID: ${{ secrets.AWS_CLOUDFRONT_ID }}
 
-      - name: \ud83d\udcca Resumen
+      - name: Resumen
         run: |
-          echo "## \u2601\ufe0f AWS Deploy" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Recurso | URL |" >> $GITHUB_STEP_SUMMARY
+          echo "## ☁️ AWS Deploy" >> $GITHUB_STEP_SUMMARY
+          echo "| Recurso | Detalle |" >> $GITHUB_STEP_SUMMARY
           echo "|---|---|" >> $GITHUB_STEP_SUMMARY
-          echo "| S3 Bucket | s3://${{ secrets.AWS_S3_BUCKET }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Sitio web | https://${{ secrets.AWS_S3_BUCKET }}.s3-website.amazonaws.com |" >> $GITHUB_STEP_SUMMARY
-          echo "| .vsix latest | https://${{ secrets.AWS_S3_BUCKET }}.s3.amazonaws.com/releases/luxcode-ai-latest.vsix |" >> $GITHUB_STEP_SUMMARY
-          echo "| Estado | \u2705 Desplegado |" >> $GITHUB_STEP_SUMMARY
+          echo "| S3 Bucket | ${{ secrets.AWS_S3_BUCKET }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | ${{ github.event.inputs.deploy_target }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Estado | ✅ OK |" >> $GITHUB_STEP_SUMMARY
