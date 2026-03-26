@@ -21,7 +21,6 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - run: npx tsc -p ./
       - run: npm version 0.1.0 --no-git-tag-version --allow-same-version
       - run: npx @vscode/vsce package --no-dependencies
       - name: Create tag v0.1.0-beta
@@ -38,11 +37,10 @@ jobs:
           fail_on_unmatched_files: false
           files: "*.vsix"
           body: |
-            ## ⚡ LuxCode AI v0.1.0-beta — Primera versión
-            - 🌐 Generador de páginas web (HTML+CSS+JS)
-            - 🔑 Gemini 2.0 Flash (gratis) y OpenAI GPT-4o
-            - 🎨 Panel lateral visual en VS Code
-
+            ## ⚡ LuxCode AI v0.1.0-beta
+            Primera versión pública.
+            - 🌐 Generador de páginas web
+            - 🔑 Gemini 2.0 Flash (gratis)
             **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
 
   release-v020:
@@ -57,7 +55,6 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - run: npx tsc -p ./
       - run: npm version 0.2.0 --no-git-tag-version --allow-same-version
       - run: npx @vscode/vsce package --no-dependencies
       - name: Create tag v0.2.0
@@ -75,13 +72,8 @@ jobs:
           files: "*.vsix"
           body: |
             ## ⚡ LuxCode AI v0.2.0
-            - 📱 Apps Móviles (React Native, Flutter, Ionic)
-            - 🖥 Apps Escritorio (Tauri, Electron)
-            - ⚡ Groq Llama 3.3 70B (gratis)
-            - 🦙 Ollama local
-            - 🌐 OpenRouter (100+ modelos)
-
-            **Instalar:** descarga `.vsix` ↓ → VS Code → Extensions → `···` → Install from VSIX
+            - 📱 Apps Móviles, 🖥 Escritorio
+            - ⚡ Groq Llama 3.3, 🦙 Ollama, 🌐 OpenRouter
 
   release-v030:
     name: 📦 Release v0.3.0
@@ -95,7 +87,6 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - run: npx tsc -p ./
       - run: npm version 0.3.0 --no-git-tag-version --allow-same-version
       - run: npx @vscode/vsce package --no-dependencies
       - name: Create tag v0.3.0
@@ -107,15 +98,12 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: v0.3.0
-          name: "⚡ LuxCode AI v0.3.0 — Agente + MCP"
+          name: "⚡ LuxCode AI v0.3.0"
           prerelease: false
           fail_on_unmatched_files: false
           files: "*.vsix"
           body: |
             ## ⚡ LuxCode AI v0.3.0
-            - 🤖 **Modo Agente** — tareas multi-paso
-            - 🔌 **MCP Server** — Copilot, Claude, Cline
-            - 🔌 Generador de APIs REST Node.js/Express
-            - 🦙 Qwen 2.5 Coder en Ollama
-
-            **Sitio web:** https://luisitoys12.github.io/luxcode-ai
+            - 🤖 Modo Agente, 🔌 MCP Server
+            - 🔌 APIs REST, 🦙 Qwen 2.5
+            🌐 https://luisitoys12.github.io/luxcode-ai

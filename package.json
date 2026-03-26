@@ -1,7 +1,7 @@
 {
   "name": "luxcode-ai",
   "displayName": "LuxCode AI",
-  "description": "Genera web, mobile, desktop y APIs con IA. Modo Agente, MCP, Gemini, Groq, Ollama y más. Open Source.",
+  "description": "Genera web, mobile, desktop y APIs con IA. Modo Agente, MCP, Gemini, Groq, Ollama y más.",
   "version": "0.4.0",
   "publisher": "luisitoys12",
   "repository": {
@@ -9,51 +9,43 @@
     "url": "https://github.com/luisitoys12/luxcode-ai"
   },
   "homepage": "https://luisitoys12.github.io/luxcode-ai",
-  "bugs": {
-    "url": "https://github.com/luisitoys12/luxcode-ai/issues"
-  },
+  "bugs": { "url": "https://github.com/luisitoys12/luxcode-ai/issues" },
   "engines": { "vscode": "^1.85.0" },
   "categories": ["AI", "Other"],
-  "keywords": ["ai", "agent", "mcp", "web", "mobile", "desktop", "api", "gemini", "openai", "ollama", "groq", "codegen", "generator"],
+  "keywords": ["ai", "agent", "mcp", "web", "mobile", "desktop", "api", "gemini", "openai", "ollama", "groq"],
   "activationEvents": [],
   "main": "./out/extension.js",
-  "icon": "media/sidebar-icon.svg",
   "contributes": {
     "commands": [
-      { "command": "luxcode.openPanel", "title": "LuxCode AI: Abrir Panel" },
-      { "command": "luxcode.generateWeb", "title": "LuxCode AI: Generar Página Web" },
+      { "command": "luxcode.openPanel",      "title": "LuxCode AI: Abrir Panel" },
+      { "command": "luxcode.generateWeb",    "title": "LuxCode AI: Generar Página Web" },
       { "command": "luxcode.generateMobile", "title": "LuxCode AI: Generar App Móvil" },
-      { "command": "luxcode.generateDesktop", "title": "LuxCode AI: Generar App Escritorio" },
-      { "command": "luxcode.generateAPI", "title": "LuxCode AI: Generar API REST" },
-      { "command": "luxcode.agentTask", "title": "LuxCode AI: 🤖 Modo Agente" },
-      { "command": "luxcode.mcpConnect", "title": "LuxCode AI: Conectar MCP Server" },
-      { "command": "luxcode.editWithAI", "title": "LuxCode AI: Editar con IA" },
-      { "command": "luxcode.explainCode", "title": "LuxCode AI: Explicar Código" },
-      { "command": "luxcode.fixBug", "title": "LuxCode AI: Corregir Bug" }
+      { "command": "luxcode.generateDesktop","title": "LuxCode AI: Generar App Escritorio" },
+      { "command": "luxcode.generateAPI",    "title": "LuxCode AI: Generar API REST" },
+      { "command": "luxcode.agentTask",      "title": "LuxCode AI: Modo Agente" },
+      { "command": "luxcode.mcpConnect",     "title": "LuxCode AI: Conectar MCP Server" },
+      { "command": "luxcode.editWithAI",     "title": "LuxCode AI: Editar con IA" },
+      { "command": "luxcode.explainCode",    "title": "LuxCode AI: Explicar Código" },
+      { "command": "luxcode.fixBug",         "title": "LuxCode AI: Corregir Bug" }
     ],
     "menus": {
       "editor/context": [
-        { "command": "luxcode.editWithAI", "when": "editorHasSelection", "group": "luxcode@1" },
+        { "command": "luxcode.editWithAI",  "when": "editorHasSelection", "group": "luxcode@1" },
         { "command": "luxcode.explainCode", "when": "editorHasSelection", "group": "luxcode@2" },
-        { "command": "luxcode.fixBug", "when": "editorHasSelection", "group": "luxcode@3" }
+        { "command": "luxcode.fixBug",      "when": "editorHasSelection", "group": "luxcode@3" }
       ]
     },
     "configuration": {
       "title": "LuxCode AI",
       "properties": {
-        "luxcode.apiProvider": {
-          "type": "string",
-          "enum": ["gemini", "openai", "ollama", "lmstudio", "groq", "openrouter"],
-          "default": "gemini",
-          "description": "Proveedor de IA"
-        },
-        "luxcode.geminiApiKey": { "type": "string", "default": "", "description": "API Key de Google Gemini" },
-        "luxcode.openaiApiKey": { "type": "string", "default": "", "description": "API Key de OpenAI" },
-        "luxcode.groqApiKey": { "type": "string", "default": "", "description": "API Key de Groq" },
+        "luxcode.apiProvider":      { "type": "string", "enum": ["gemini","openai","ollama","lmstudio","groq","openrouter"], "default": "gemini", "description": "Proveedor de IA" },
+        "luxcode.geminiApiKey":     { "type": "string", "default": "", "description": "API Key de Google Gemini" },
+        "luxcode.openaiApiKey":     { "type": "string", "default": "", "description": "API Key de OpenAI" },
+        "luxcode.groqApiKey":       { "type": "string", "default": "", "description": "API Key de Groq" },
         "luxcode.openrouterApiKey": { "type": "string", "default": "", "description": "API Key de OpenRouter" },
-        "luxcode.ollamaUrl": { "type": "string", "default": "http://localhost:11434", "description": "URL de Ollama" },
-        "luxcode.ollamaModel": { "type": "string", "default": "llama3", "description": "Modelo de Ollama" },
-        "luxcode.lmstudioUrl": { "type": "string", "default": "http://localhost:1234", "description": "URL de LM Studio" }
+        "luxcode.ollamaUrl":        { "type": "string", "default": "http://localhost:11434", "description": "URL de Ollama" },
+        "luxcode.ollamaModel":      { "type": "string", "default": "llama3", "description": "Modelo de Ollama" },
+        "luxcode.lmstudioUrl":      { "type": "string", "default": "http://localhost:1234", "description": "URL de LM Studio" }
       }
     },
     "viewsContainers": {
